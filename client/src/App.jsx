@@ -1,0 +1,31 @@
+import { Routes, Route } from 'react-router-dom'
+import AppLayout from './layouts/AppLayout'
+import Dashboard from './pages/Dashboard'
+import Orders from './pages/Orders'
+import Roasting from './pages/Roasting'
+import RoastingItemDetail from './pages/RoastingItemDetail'
+import Customers from './pages/Customers'
+import CustomerDetail from './pages/CustomerDetail'
+import Blends from './pages/Blends'
+import GreenBeanInventory from './pages/GreenBeanInventory'
+import BagInventory from './pages/BagInventory'
+
+function App() {
+  return (
+    <Routes>
+      <Route element={<AppLayout />}>
+        <Route index element={<Dashboard />} />
+        <Route path="orders" element={<Orders />} />
+        <Route path="roasting" element={<Roasting />} />
+        <Route path="roasting/items/:itemId" element={<RoastingItemDetail />} />
+        <Route path="customers" element={<Customers />} />
+        <Route path="customers/:id" element={<CustomerDetail />} />
+        <Route path="blends" element={<Blends />} />
+        <Route path="green-beans" element={<GreenBeanInventory />} />
+        <Route path="bags" element={<BagInventory />} />
+      </Route>
+    </Routes>
+  )
+}
+
+export default App

@@ -1,0 +1,177 @@
+import { useState } from 'react'
+import api from '../api/client'
+import { useFetch } from '../hooks/useFetch'
+import { nullifyEmpty } from '../utils/nullifyEmpty'
+
+const emptyItem = { blend_id: '', bag_size_oz: '', grind_type: 'whole', quantity: 1, sale_price_per_bag: '' }
+
+const inputCls = 'mt-1 w-full rounded-lg border border-stone-300 px-3 py-2 text-sm focus:border-amber-700 focus:outline-none focus:ring-1 focus:ring-amber-700'
+
+function priceFor(bags, bag_size_oz, grind_type) {
+  const bag = bags?.find((b) => String(b.size_oz) === String(bag_size_oz))
+  if (!bag) return ''
+  const price = grind_type === 'ground' ? bag.price_ground : bag.price_whole
+  return price ?? ''
+}
+
+function ItemRow({ item, index, bags, blends, onChange, onRemove, removable }) {
+  const set = (field) => (e) => {
+    const value = e.target.value
+    const next = { ...item, [field]: value }
+    if (field === 'bag_size_oz' || field === 'grind_type') {
+      const price = priceFor(bags, next.bag_size_oz, next.grind_type)
+      if (price !== '') next.sale_price_per_bag = price
+    }
+    onChange(index, next)
+  }
+
+  return (
+    <div className="rounded-lg border border-stone-200 p-3">
+      <div className="grid grid-cols-2 gap-2">
+        <div>
+          <label className="block text-xs font-medium text-stone-500">Blend</label>
+          <select required value={item.blend_id} onChange={set('blend_id')} className={inputCls}>
+            <option value="">Select blend…</option>
+            {blends?.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
+          </select>
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-stone-500">Bag Size</label>
+          <select required value={item.bag_size_oz} onChange={set('bag_size_oz')} className={inputCls}>
+            <option value="">Select size…</option>
+            {bags?.map((b) => <option key={b.id} value={b.size_oz}>{b.size_label || `${b.size_oz}oz`}</option>)}
+          </select>
+        </div>
+      </div>
+
+      <div className="mt-2 grid grid-cols-3 gap-2">
+        <div>
+          <label className="block text-xs font-medium text-stone-500">Grind</label>
+          <select value={item.grind_type} onChange={set('grind_type')} className={inputCls}>
+            <option value="whole">Whole Bean</option>
+            <option value="ground">Ground</option>
+          </select>
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-stone-500">Qty</label>
+          <input type="number" step="1" min="1" required value={item.quantity} onChange={set('quantity')} className={inputCls} />
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-stone-500">Price / Bag</label>
+          <input type="number" step="0.01" min="0" value={item.sale_price_per_bag} onChange={set('sale_price_per_bag')} className={inputCls} />
+        </div>
+      </div>
+
+      {removable && (
+        <button
+          type="button"
+          onClick={() => onRemove(index)}
+          className="mt-2 text-xs font-medium text-stone-400 hover:text-red-600"
+        >
+          Remove item
+        </button>
+      )}
+    </div>
+  )
+}
+
+function OrderForm({ order, onSaved, onCancel }) {
+  const { data: customers } = useFetch('/customers')
+  const { data: blends }    = useFetch('/blends')
+  const { data: bags }      = useFetch('/bags')
+
+  const [customerId, setCustomerId] = useState(order?.customer_id || '')
+  const [notes, setNotes] = useState(order?.notes || '')
+  const [items, setItems] = useState(
+    order?.items?.length
+      ? order.items.map((i) => ({
+          blend_id: i.blend_id,
+          bag_size_oz: i.bag_size_oz,
+          grind_type: i.grind_type || 'whole',
+          quantity: i.quantity,
+          sale_price_per_bag: i.sale_price_per_bag || '',
+        }))
+      : [{ ...emptyItem }]
+  )
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState(null)
+
+  const updateItem = (index, next) => setItems(items.map((it, i) => (i === index ? next : it)))
+  const addItem = () => setItems([...items, { ...emptyItem }])
+  const removeItem = (index) => setItems(items.filter((_, i) => i !== index))
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setSaving(true)
+    setError(null)
+    try {
+      const payload = { customer_id: customerId, notes, items: items.map(nullifyEmpty) }
+      const res = order
+        ? await api.patch(`/orders/${order.id}`, { customer_id: customerId, notes })
+        : await api.post('/orders', payload)
+      onSaved(res.data)
+    } catch (err) {
+      setError(err.response?.data?.error || err.message)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div>
+        <label className="block text-sm font-medium text-stone-700">Customer</label>
+        <select required value={customerId} onChange={(e) => setCustomerId(e.target.value)} className={inputCls}>
+          <option value="">Select customer…</option>
+          {customers?.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+        </select>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-stone-700">Items</label>
+        <div className="mt-2 space-y-2">
+          {items.map((item, i) => (
+            <ItemRow
+              key={i}
+              item={item}
+              index={i}
+              bags={bags}
+              blends={blends}
+              onChange={updateItem}
+              onRemove={removeItem}
+              removable={items.length > 1 && !order}
+            />
+          ))}
+        </div>
+        {!order && (
+          <button type="button" onClick={addItem} className="mt-2 text-sm font-medium text-amber-800 hover:text-amber-900">
+            + Add another blend
+          </button>
+        )}
+        {order && (
+          <p className="mt-2 text-xs text-stone-400">
+            Line items can't be edited here yet — adjust status/weighed/label from the Orders or Roasting page.
+          </p>
+        )}
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-stone-700">Notes</label>
+        <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} className={inputCls} />
+      </div>
+
+      {error && <p className="text-sm text-red-700">{error}</p>}
+
+      <div className="flex justify-end gap-2 pt-2">
+        <button type="button" onClick={onCancel} className="rounded-lg px-4 py-2 text-sm font-medium text-stone-600 hover:bg-stone-100">
+          Cancel
+        </button>
+        <button type="submit" disabled={saving} className="rounded-lg bg-amber-800 px-4 py-2 text-sm font-medium text-amber-50 shadow-sm transition-colors hover:bg-amber-900 disabled:opacity-50">
+          {saving ? 'Saving…' : order ? 'Save Changes' : 'Add Order'}
+        </button>
+      </div>
+    </form>
+  )
+}
+
+export default OrderForm

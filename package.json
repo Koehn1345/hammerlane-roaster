@@ -1,0 +1,13 @@
+{
+  "name": "hammerlane-roaster",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "npm --prefix client install && npm --prefix client run build",
+    "install": "npm --prefix server install",
+    "start": "npm --prefix server start"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
