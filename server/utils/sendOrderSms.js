@@ -63,7 +63,7 @@ async function sendOrderSms(orderId) {
   const billingText = BILLING_LABEL[order.billing_status] ?? 'Not Billed';
 
   const body = [
-    `Hi ${firstName}, your order is ready! ☕`,
+    `Hi ${firstName}, your order is ready to pick up at your normal location or will be shipped ☕`,
     itemLines,
     `Payment Status: ${billingText}`,
     `— Hammerlane Roaster`,
