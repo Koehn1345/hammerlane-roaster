@@ -103,11 +103,6 @@ function CustomerDetail() {
       {!ordLoading && !ordError && (
         <>
           <OrderSection
-            title="All Orders"
-            rows={allItems}
-            emptyMessage="No orders for this customer."
-          />
-          <OrderSection
             title="Not Billed"
             rows={notBilled}
             emptyMessage="No pending or roasted orders."
@@ -116,6 +111,11 @@ function CustomerDetail() {
             title="Billed"
             rows={billed}
             emptyMessage="No billed or paid orders."
+          />
+          <OrderSection
+            title="All Orders"
+            rows={allItems}
+            emptyMessage="No orders for this customer."
           />
         </>
       )}
