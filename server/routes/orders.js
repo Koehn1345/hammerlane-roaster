@@ -1,6 +1,7 @@
 const express = require('express');
-const router = express.Router();
-const pool = require('../db/db');
+const router  = express.Router();
+const pool    = require('../db/db');
+const { sendOrderSms } = require('../utils/sendOrderSms');
 
 const ITEM_COLUMNS = `
   order_items.id, order_items.order_id, order_items.blend_id, order_items.bag_size_oz,
@@ -280,7 +281,16 @@ router.patch('/items/:itemId', async (req, res) => {
       values
     );
     if (!result.rows.length) return res.status(404).json({ error: 'Not found' });
-    res.json(result.rows[0]);
+
+    const updatedItem = result.rows[0];
+    res.json(updatedItem);
+
+    // Fire SMS if this mark-roasted completed the whole order (non-blocking)
+    if (fields.status === 'roasted') {
+      sendOrderSms(updatedItem.order_id).catch((err) =>
+        console.error(`SMS failed for order ${updatedItem.order_id}:`, err.message)
+      );
+    }
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
