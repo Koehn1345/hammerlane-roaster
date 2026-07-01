@@ -4,6 +4,7 @@ const navItems = [
   { to: '/', label: 'Dashboard', end: true },
   { to: '/orders', label: 'Orders' },
   { to: '/roasting', label: 'Roasting' },
+  { to: '/billing', label: 'Billing' },
   { to: '/customers', label: 'Customers' },
   { to: '/blends', label: 'Blends' },
   { to: '/green-beans', label: 'Green Bean Inventory' },
