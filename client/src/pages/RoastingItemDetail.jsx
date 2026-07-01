@@ -49,6 +49,7 @@ function RoastingItemDetail() {
   const { data: orders } = useFetch('/orders')
   const [editing, setEditing] = useState(false)
   const [patching, setPatching] = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState(false)
 
   const patch = async (fields) => {
     setPatching(true)
@@ -168,6 +169,37 @@ function RoastingItemDetail() {
           <div className="flex flex-1 items-center justify-center rounded-xl bg-green-50 py-3 text-sm font-medium text-green-700">
             ✓ Roasted {formatDate(item.roast_date)}
           </div>
+        )}
+      </div>
+
+      {/* Delete */}
+      <div className="mt-4 flex justify-center">
+        {confirmDelete ? (
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-stone-500">Delete this order item?</span>
+            <button
+              onClick={async () => {
+                await api.delete(`/orders/items/${itemId}`)
+                navigate('/roasting')
+              }}
+              className="rounded-lg bg-red-600 px-4 py-1.5 text-sm font-semibold text-white hover:bg-red-700"
+            >
+              Yes, delete
+            </button>
+            <button
+              onClick={() => setConfirmDelete(false)}
+              className="rounded-lg px-4 py-1.5 text-sm font-medium text-stone-500 hover:text-stone-700"
+            >
+              Cancel
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={() => setConfirmDelete(true)}
+            className="text-sm font-medium text-red-500 hover:text-red-700"
+          >
+            Delete item
+          </button>
         )}
       </div>
 
