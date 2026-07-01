@@ -4,7 +4,13 @@ import { nullifyEmpty } from '../utils/nullifyEmpty'
 
 const emptyForm = { origin: '', supplier: '', lbs_purchased: '', cost_per_lb: '', date_received: '' }
 
-function GreenBeanForm({ bean, onSaved, onCancel }) {
+const inputCls = 'mt-1 w-full rounded-lg border border-stone-300 px-3 py-2 text-sm focus:border-amber-700 focus:outline-none focus:ring-1 focus:ring-amber-700'
+
+function unique(arr) {
+  return [...new Set(arr.filter(Boolean))].sort()
+}
+
+function GreenBeanForm({ bean, allBeans = [], onSaved, onCancel }) {
   const [form, setForm] = useState(
     bean
       ? {
@@ -18,6 +24,9 @@ function GreenBeanForm({ bean, onSaved, onCancel }) {
   )
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState(null)
+
+  const origins = unique(allBeans.map((b) => b.origin))
+  const suppliers = unique(allBeans.map((b) => b.supplier))
 
   const handleChange = (field) => (e) => setForm({ ...form, [field]: e.target.value })
 
@@ -45,19 +54,30 @@ function GreenBeanForm({ bean, onSaved, onCancel }) {
         <input
           type="text"
           required
+          list="origins-list"
           value={form.origin}
           onChange={handleChange('origin')}
-          className="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2 text-sm focus:border-amber-700 focus:outline-none focus:ring-1 focus:ring-amber-700"
+          placeholder="e.g. Ethiopia Yirgacheffe"
+          className={inputCls}
         />
+        <datalist id="origins-list">
+          {origins.map((o) => <option key={o} value={o} />)}
+        </datalist>
       </div>
+
       <div>
         <label className="block text-sm font-medium text-stone-700">Supplier</label>
         <input
           type="text"
+          list="suppliers-list"
           value={form.supplier}
           onChange={handleChange('supplier')}
-          className="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2 text-sm focus:border-amber-700 focus:outline-none focus:ring-1 focus:ring-amber-700"
+          placeholder="e.g. Sweet Maria's"
+          className={inputCls}
         />
+        <datalist id="suppliers-list">
+          {suppliers.map((s) => <option key={s} value={s} />)}
+        </datalist>
       </div>
 
       {bean ? (
@@ -69,7 +89,7 @@ function GreenBeanForm({ bean, onSaved, onCancel }) {
             min="0"
             value={form.lbs_remaining}
             onChange={handleChange('lbs_remaining')}
-            className="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2 text-sm focus:border-amber-700 focus:outline-none focus:ring-1 focus:ring-amber-700"
+            className={inputCls}
           />
         </div>
       ) : (
@@ -82,7 +102,7 @@ function GreenBeanForm({ bean, onSaved, onCancel }) {
             required
             value={form.lbs_purchased}
             onChange={handleChange('lbs_purchased')}
-            className="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2 text-sm focus:border-amber-700 focus:outline-none focus:ring-1 focus:ring-amber-700"
+            className={inputCls}
           />
         </div>
       )}
@@ -95,16 +115,17 @@ function GreenBeanForm({ bean, onSaved, onCancel }) {
           min="0"
           value={form.cost_per_lb}
           onChange={handleChange('cost_per_lb')}
-          className="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2 text-sm focus:border-amber-700 focus:outline-none focus:ring-1 focus:ring-amber-700"
+          className={inputCls}
         />
       </div>
+
       <div>
         <label className="block text-sm font-medium text-stone-700">Date Received</label>
         <input
           type="date"
           value={form.date_received}
           onChange={handleChange('date_received')}
-          className="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2 text-sm focus:border-amber-700 focus:outline-none focus:ring-1 focus:ring-amber-700"
+          className={inputCls}
         />
       </div>
 

@@ -70,6 +70,7 @@ function GreenBeanInventory() {
         >
           <GreenBeanForm
             bean={modalMode === 'create' ? null : modalMode}
+            allBeans={beans || []}
             onSaved={handleSaved}
             onCancel={closeModal}
           />
