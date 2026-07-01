@@ -81,6 +81,7 @@ function OrderForm({ order, onSaved, onCancel }) {
   const { data: bags }      = useFetch('/bags')
 
   const [customerId, setCustomerId] = useState(order?.customer_id || '')
+  const [billingStatus, setBillingStatus] = useState(order?.billing_status || 'not_billed')
   const [notes, setNotes] = useState(order?.notes || '')
   const [items, setItems] = useState(
     order?.items?.length
@@ -105,9 +106,9 @@ function OrderForm({ order, onSaved, onCancel }) {
     setSaving(true)
     setError(null)
     try {
-      const payload = { customer_id: customerId, notes, items: items.map(nullifyEmpty) }
+      const payload = { customer_id: customerId, notes, billing_status: billingStatus, items: items.map(nullifyEmpty) }
       const res = order
-        ? await api.patch(`/orders/${order.id}`, { customer_id: customerId, notes })
+        ? await api.patch(`/orders/${order.id}`, { customer_id: customerId, notes, billing_status: billingStatus })
         : await api.post('/orders', payload)
       onSaved(res.data)
     } catch (err) {
@@ -158,6 +159,30 @@ function OrderForm({ order, onSaved, onCancel }) {
       <div>
         <label className="block text-sm font-medium text-stone-700">Notes</label>
         <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} className={inputCls} />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-stone-700">Payment Status</label>
+        <div className="mt-2 flex gap-2">
+          {[
+            { value: 'not_billed', label: 'Not Billed', active: 'bg-stone-700 text-white', inactive: 'bg-white text-stone-600' },
+            { value: 'billed',     label: 'Billed',     active: 'bg-blue-600 text-white',   inactive: 'bg-white text-stone-600' },
+            { value: 'paid',       label: 'Paid',       active: 'bg-green-700 text-white',   inactive: 'bg-white text-stone-600' },
+          ].map(({ value, label, active, inactive }) => (
+            <button
+              key={value}
+              type="button"
+              onClick={() => setBillingStatus(value)}
+              className={`flex-1 rounded-lg border py-2 text-sm font-medium transition-colors ${
+                billingStatus === value
+                  ? `${active} border-transparent shadow-sm`
+                  : `${inactive} border-stone-300 hover:border-stone-400`
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {error && <p className="text-sm text-red-700">{error}</p>}

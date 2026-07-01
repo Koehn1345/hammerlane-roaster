@@ -123,9 +123,12 @@ router.post('/', async (req, res) => {
   try {
     await client.query('BEGIN');
 
+    const validBilling = ['not_billed', 'billed', 'paid'];
+    const billing = validBilling.includes(req.body.billing_status) ? req.body.billing_status : 'not_billed';
+
     const orderResult = await client.query(
-      `INSERT INTO orders (customer_id, notes) VALUES ($1, $2) RETURNING *`,
-      [customer_id, notes || null]
+      `INSERT INTO orders (customer_id, notes, billing_status) VALUES ($1, $2, $3) RETURNING *`,
+      [customer_id, notes || null, billing]
     );
     const order = orderResult.rows[0];
 
