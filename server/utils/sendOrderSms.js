@@ -65,7 +65,7 @@ async function sendOrderSms(orderId) {
   const body = [
     `Hi ${firstName}, your order is ready to pick up at your normal location or will be shipped ☕`,
     itemLines,
-    `Payment Status: ${billingText}`,
+    `– Payment Status: ${billingText}`,
     `— Hammerlane Roaster`,
   ].join('\n');
 
