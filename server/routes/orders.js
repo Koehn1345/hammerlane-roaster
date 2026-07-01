@@ -28,35 +28,47 @@ async function attachItems(orders) {
   return orders.map((o) => ({ ...o, items: byOrder[o.id] || [] }));
 }
 
-// bean cost/lb for a blend = weighted sum of its components' green bean cost/lb
+// Computes green bean cost, bag cost, and projected profit for one order line item.
+//
+// Green bean formula (per component):
+//   (cost_per_lb / 16) * 18 * (percentage / 100) * quantity_lbs
+//
+// The 18/16 factor accounts for roasting loss — ~18 oz of green beans are needed
+// to produce 16 oz of roasted coffee (~12.5% weight loss during roasting).
 async function computeItemCosts({ blend_id, bag_size_oz, quantity, sale_price_per_bag }) {
-  const blendCostResult = await pool.query(
-    `SELECT COALESCE(SUM((bc.percentage / 100) * gb.cost_per_lb), 0) AS cost_per_lb
+  const componentsResult = await pool.query(
+    `SELECT bc.percentage, gb.cost_per_lb
      FROM blend_components bc
      JOIN green_beans gb ON bc.green_bean_id = gb.id
      WHERE bc.blend_id = $1`,
     [blend_id]
   );
-  const blendCostPerLb = Number(blendCostResult.rows[0]?.cost_per_lb || 0);
 
   const bagResult = await pool.query(
     `SELECT size_lbs, cost_each FROM bag_inventory WHERE size_oz = $1 LIMIT 1`,
     [bag_size_oz]
   );
-  const sizeLbs = Number(bagResult.rows[0]?.size_lbs || 0);
-  const bagCostEach = Number(bagResult.rows[0]?.cost_each || 0);
 
-  const qty = Number(quantity) || 0;
-  const weight = sizeLbs * qty;
-  const costBeans = blendCostPerLb * weight;
+  const sizeLbs    = Number(bagResult.rows[0]?.size_lbs  || 0);
+  const bagCostEach = Number(bagResult.rows[0]?.cost_each || 0);
+  const qty         = Number(quantity) || 0;
+  const quantityLbs = sizeLbs * qty;
+
+  let costBeans = 0;
+  for (const comp of componentsResult.rows) {
+    const pct      = Number(comp.percentage)  / 100;
+    const costPerLb = Number(comp.cost_per_lb) || 0;
+    costBeans += (costPerLb / 16) * 18 * pct * quantityLbs;
+  }
+
   const costBags = bagCostEach * qty;
-  const revenue = (Number(sale_price_per_bag) || 0) * qty;
-  const profit = revenue - costBeans - costBags;
+  const revenue  = (Number(sale_price_per_bag) || 0) * qty;
+  const profit   = revenue - costBeans - costBags;
 
   return {
     cost_beans: costBeans.toFixed(2),
-    cost_bags: costBags.toFixed(2),
-    profit: profit.toFixed(2),
+    cost_bags:  costBags.toFixed(2),
+    profit:     profit.toFixed(2),
   };
 }
 
