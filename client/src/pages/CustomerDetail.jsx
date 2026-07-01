@@ -53,7 +53,8 @@ function CustomerDetail() {
     order.items.map((item) => ({ ...item, billing_status: order.billing_status }))
   )
   const notBilled = allItems.filter((i) => i.billing_status === 'not_billed')
-  const billed    = allItems.filter((i) => i.billing_status === 'billed' || i.billing_status === 'paid')
+  const billed    = allItems.filter((i) => i.billing_status === 'billed')
+  const paid      = allItems.filter((i) => i.billing_status === 'paid')
 
   return (
     <div>
@@ -105,17 +106,17 @@ function CustomerDetail() {
           <OrderSection
             title="Not Billed"
             rows={notBilled}
-            emptyMessage="No pending or roasted orders."
+            emptyMessage="No outstanding orders."
           />
           <OrderSection
             title="Billed"
             rows={billed}
-            emptyMessage="No billed or paid orders."
+            emptyMessage="No invoiced orders."
           />
           <OrderSection
-            title="All Orders"
-            rows={allItems}
-            emptyMessage="No orders for this customer."
+            title="Paid"
+            rows={paid}
+            emptyMessage="No paid orders."
           />
         </>
       )}
