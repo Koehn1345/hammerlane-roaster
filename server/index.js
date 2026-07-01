@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 require('dotenv').config();
 
 const app = express();
@@ -21,10 +22,14 @@ app.use('/api/bags', bagsRouter);
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 
-// Serve the built React app in production
+// Serve the built React frontend for all non-API routes
 const clientDist = path.join(__dirname, '../client/dist');
-app.use(express.static(clientDist));
-app.get('/{*path}', (req, res) => res.sendFile(path.join(clientDist, 'index.html')));
+if (fs.existsSync(clientDist)) {
+  app.use(express.static(clientDist));
+  app.use((req, res) => res.sendFile(path.join(clientDist, 'index.html')));
+} else {
+  console.warn('client/dist not found — frontend not served. Run npm run build first.');
+}
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
