@@ -79,7 +79,7 @@ function OrderItemDetail() {
     navigate(-1)
   }
 
-  if (loading) return <p className="p-6 text-sm text-stone-400">Loading…</p>
+  if (loading && !item) return <p className="p-6 text-sm text-stone-400">Loading…</p>
   if (error || !item) return (
     <div className="p-6">
       <button onClick={() => navigate(-1)} className="text-sm text-stone-500 hover:text-stone-800">← Back</button>

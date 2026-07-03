@@ -63,7 +63,7 @@ function RoastingItemDetail() {
     navigate('/roasting')
   }
 
-  if (loading) return <p className="p-6 text-sm text-stone-400">Loading…</p>
+  if (loading && !item) return <p className="p-6 text-sm text-stone-400">Loading…</p>
   if (error || !item) return (
     <div className="p-6">
       <Link to="/roasting" className="text-sm text-stone-500 hover:text-stone-800">← Roasting</Link>
