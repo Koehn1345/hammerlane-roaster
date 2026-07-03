@@ -8,12 +8,14 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+const dashboardRouter = require('./routes/dashboard');
 const ordersRouter = require('./routes/orders');
 const customersRouter = require('./routes/customers');
 const blendsRouter = require('./routes/blends');
 const greenBeansRouter = require('./routes/greenBeans');
 const bagsRouter = require('./routes/bags');
 
+app.use('/api/dashboard', dashboardRouter);
 app.use('/api/orders', ordersRouter);
 app.use('/api/customers', customersRouter);
 app.use('/api/blends', blendsRouter);
