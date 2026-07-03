@@ -1,4 +1,4 @@
-import { Link, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import DataTable from '../components/DataTable'
 import { useFetch } from '../hooks/useFetch'
 import { formatDate } from '../utils/format'
@@ -27,17 +27,18 @@ const orderColumns = [
   { key: 'status',           label: 'Status', format: StatusBadge },
 ]
 
-function OrderSection({ title, rows, emptyMessage }) {
+function OrderSection({ title, rows, emptyMessage, onRowClick }) {
   return (
     <section className="mt-8">
       <h2 className="mb-3 font-serif text-lg font-semibold text-stone-800">{title}</h2>
-      <DataTable columns={orderColumns} rows={rows} emptyMessage={emptyMessage} />
+      <DataTable columns={orderColumns} rows={rows} emptyMessage={emptyMessage} onRowClick={onRowClick} />
     </section>
   )
 }
 
 function CustomerDetail() {
   const { id } = useParams()
+  const navigate = useNavigate()
   const { data: customer, loading: custLoading, error: custError } = useFetch(`/customers/${id}`)
   const { data: orders, loading: ordLoading, error: ordError } = useFetch(`/customers/${id}/orders`)
 
@@ -107,16 +108,19 @@ function CustomerDetail() {
             title="Not Billed"
             rows={notBilled}
             emptyMessage="No outstanding orders."
+            onRowClick={(item) => navigate(`/orders/items/${item.id}`)}
           />
           <OrderSection
             title="Billed"
             rows={billed}
             emptyMessage="No invoiced orders."
+            onRowClick={(item) => navigate(`/orders/items/${item.id}`)}
           />
           <OrderSection
             title="Paid"
             rows={paid}
             emptyMessage="No paid orders."
+            onRowClick={(item) => navigate(`/orders/items/${item.id}`)}
           />
         </>
       )}

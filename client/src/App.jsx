@@ -5,6 +5,7 @@ import Orders from './pages/Orders'
 import Roasting from './pages/Roasting'
 import Billing from './pages/Billing'
 import RoastingItemDetail from './pages/RoastingItemDetail'
+import OrderItemDetail from './pages/OrderItemDetail'
 import Customers from './pages/Customers'
 import CustomerDetail from './pages/CustomerDetail'
 import Blends from './pages/Blends'
@@ -20,6 +21,7 @@ function App() {
         <Route path="roasting" element={<Roasting />} />
         <Route path="billing" element={<Billing />} />
         <Route path="roasting/items/:itemId" element={<RoastingItemDetail />} />
+        <Route path="orders/items/:itemId" element={<OrderItemDetail />} />
         <Route path="customers" element={<Customers />} />
         <Route path="customers/:id" element={<CustomerDetail />} />
         <Route path="blends" element={<Blends />} />

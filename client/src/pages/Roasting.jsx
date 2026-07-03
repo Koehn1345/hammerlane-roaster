@@ -117,7 +117,7 @@ function Roasting() {
                     <tr
                       key={item.id}
                       className="cursor-pointer hover:bg-amber-50/40"
-                      onClick={() => navigate(`/roasting/items/${item.id}`)}
+                      onClick={() => navigate(`/orders/items/${item.id}`)}
                     >
                       <td className="px-3 py-2.5" onClick={(e) => e.stopPropagation()}>
                         <button

@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
 import PageHeader from '../components/PageHeader'
 import { useFetch } from '../hooks/useFetch'
 import api from '../api/client'
@@ -21,7 +22,7 @@ function groupByCustomer(orders, billingStatus) {
   return Object.values(map).sort((a, b) => a.customer_name.localeCompare(b.customer_name))
 }
 
-function CustomerGroup({ group, actionLabel, actionColor, onAction }) {
+function CustomerGroup({ group, actionLabel, actionColor, onAction, onItemClick }) {
   return (
     <div className="mb-4 overflow-hidden rounded-xl border border-stone-200 bg-white shadow-sm">
       <div className="flex items-center justify-between gap-3 border-b border-stone-100 bg-stone-50 px-4 py-2.5">
@@ -41,7 +42,11 @@ function CustomerGroup({ group, actionLabel, actionColor, onAction }) {
       <table className="w-full text-left text-xs">
         <tbody className="divide-y divide-stone-50">
           {group.items.map((item, i) => (
-            <tr key={i} className="hover:bg-amber-50/30">
+            <tr
+              key={i}
+              onClick={() => onItemClick(item.id)}
+              className="cursor-pointer hover:bg-amber-50/50"
+            >
               <td className="px-4 py-2 text-stone-400 whitespace-nowrap">{formatDate(item.roast_date)}</td>
               <td className="px-4 py-2 font-medium text-stone-700 whitespace-nowrap">{item.blend_name}</td>
               <td className="px-4 py-2 text-stone-500 capitalize whitespace-nowrap">
@@ -60,6 +65,7 @@ function CustomerGroup({ group, actionLabel, actionColor, onAction }) {
 }
 
 function Billing() {
+  const navigate = useNavigate()
   const { data: orders, loading, error, refetch } = useFetch('/orders')
 
   const notBilledGroups = useMemo(() => groupByCustomer(orders || [], 'not_billed'), [orders])
@@ -101,6 +107,7 @@ function Billing() {
                 actionLabel="Mark Billed"
                 actionColor="bg-blue-600 hover:bg-blue-700"
                 onAction={(ids) => markOrders(ids, 'billed')}
+                onItemClick={(id) => navigate(`/orders/items/${id}`)}
               />
             ))
           )}
@@ -141,6 +148,7 @@ function Billing() {
                 actionLabel="Mark Paid"
                 actionColor="bg-green-700 hover:bg-green-800"
                 onAction={(ids) => markOrders(ids, 'paid')}
+                onItemClick={(id) => navigate(`/orders/items/${id}`)}
               />
             ))
           )}
