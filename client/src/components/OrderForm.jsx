@@ -107,10 +107,27 @@ function OrderForm({ order, onSaved, onCancel }) {
     setError(null)
     try {
       const payload = { customer_id: customerId, notes, billing_status: billingStatus, items: items.map(nullifyEmpty) }
-      const res = order
-        ? await api.patch(`/orders/${order.id}`, { customer_id: customerId, notes, billing_status: billingStatus })
-        : await api.post('/orders', payload)
-      onSaved(res.data)
+      if (order) {
+        // Patch order header
+        const res = await api.patch(`/orders/${order.id}`, { customer_id: customerId, notes, billing_status: billingStatus })
+        // Patch each line item that has a known ID
+        for (let idx = 0; idx < items.length; idx++) {
+          const originalItem = order.items?.[idx]
+          if (originalItem?.id) {
+            await api.patch(`/orders/items/${originalItem.id}`, nullifyEmpty({
+              blend_id:          items[idx].blend_id,
+              bag_size_oz:       items[idx].bag_size_oz,
+              grind_type:        items[idx].grind_type,
+              quantity:          items[idx].quantity,
+              sale_price_per_bag: items[idx].sale_price_per_bag,
+            }))
+          }
+        }
+        onSaved(res.data)
+      } else {
+        const res = await api.post('/orders', payload)
+        onSaved(res.data)
+      }
     } catch (err) {
       setError(err.response?.data?.error || err.message)
     } finally {
@@ -148,11 +165,6 @@ function OrderForm({ order, onSaved, onCancel }) {
           <button type="button" onClick={addItem} className="mt-2 text-sm font-medium text-amber-800 hover:text-amber-900">
             + Add another blend
           </button>
-        )}
-        {order && (
-          <p className="mt-2 text-xs text-stone-400">
-            Line items can't be edited here yet — adjust status/weighed/label from the Orders or Roasting page.
-          </p>
         )}
       </div>
 
