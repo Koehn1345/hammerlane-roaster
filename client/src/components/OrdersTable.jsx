@@ -77,6 +77,7 @@ function OrdersTable({ orders, refetch, onEdit }) {
       <table className="w-full text-left text-sm">
         <thead className="bg-stone-50 text-xs uppercase tracking-wide text-stone-500">
           <tr>
+            <th className="px-3 py-3 font-medium w-px" />
             <th className="px-3 py-3 font-medium">Order Date</th>
             <th className="px-3 py-3 font-medium">Customer</th>
             <th className="px-3 py-3 font-medium">Blend</th>
@@ -86,12 +87,20 @@ function OrdersTable({ orders, refetch, onEdit }) {
             <th className="px-3 py-3 font-medium">Price / Bag</th>
             <th className="px-3 py-3 font-medium">Billing</th>
             <th className="px-3 py-3 font-medium" />
-            <th className="px-3 py-3 font-medium" />
           </tr>
         </thead>
         <tbody className="divide-y divide-stone-100">
           {rows.map((row) => (
             <tr key={row.id} className="hover:bg-amber-50/40">
+              <td className="px-2 py-2.5">
+                <button
+                  title="Mark Processed"
+                  onClick={() => patchItem(row.id, { status: 'processed' })}
+                  className="flex h-7 w-7 items-center justify-center rounded-full bg-amber-800 text-amber-50 shadow-sm transition-colors hover:bg-amber-900"
+                >
+                  ✓
+                </button>
+              </td>
               <td className="px-3 py-2.5 text-stone-500 whitespace-nowrap">{formatDate(row.order_date)}</td>
               <td className="px-3 py-2.5 font-medium text-stone-800 whitespace-nowrap">{row.customer_name}</td>
               <td className="px-3 py-2.5 text-stone-700 whitespace-nowrap">{row.blend_name}</td>
@@ -110,14 +119,6 @@ function OrdersTable({ orders, refetch, onEdit }) {
                   onClick={() => cycleBilling(row)}
                   title="Click to advance billing status"
                 />
-              </td>
-              <td className="px-3 py-2.5">
-                <button
-                  onClick={() => patchItem(row.id, { status: 'processed' })}
-                  className="rounded-lg bg-amber-800 px-3 py-1 text-xs font-medium text-amber-50 shadow-sm transition-colors hover:bg-amber-900"
-                >
-                  Mark Processed
-                </button>
               </td>
               <td className="px-3 py-2.5 text-right">
                 <button
