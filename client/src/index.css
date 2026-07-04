@@ -1,9 +1,30 @@
-@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap");
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-serif: "Fraunces", ui-serif, Georgia, serif;
+  /* All fonts → Courier New */
+  --font-sans:  "Courier New", Courier, monospace;
+  --font-serif: "Courier New", Courier, monospace;
+  --font-mono:  "Courier New", Courier, monospace;
+
+  /* Remap amber (primary accent) → deep charcoal grey */
+  --color-amber-50:  #f5f5f5;
+  --color-amber-100: #e8e8e8;
+  --color-amber-200: #d4d4d4;
+  --color-amber-700: #4a4a4a;
+  --color-amber-800: #3a3a3a;
+  --color-amber-900: #222222;
+
+  /* Remap stone → neutral grey so background reads clearly grey, not cream */
+  --color-stone-50:  #f7f7f7;
+  --color-stone-100: #eeeeee;
+  --color-stone-200: #e0e0e0;
+  --color-stone-300: #cccccc;
+  --color-stone-400: #aaaaaa;
+  --color-stone-500: #888888;
+  --color-stone-600: #666666;
+  --color-stone-700: #444444;
+  --color-stone-800: #222222;
+  --color-stone-900: #111111;
 }
 
 body {
