@@ -40,12 +40,12 @@ const SidebarContent = ({ onNavClick }) => (
     <div className="flex items-center gap-2 px-6 py-6">
       <span className="text-2xl">☕</span>
       <span className="font-serif text-lg font-semibold tracking-tight text-stone-800">
-        Hammerlane Roaster
+        Roastic
       </span>
     </div>
     <NavItems onNavClick={onNavClick} />
     <div className="px-6 py-4 text-xs text-stone-400">
-      Hammerlane Roaster &copy; {new Date().getFullYear()}
+      Roastic &copy; {new Date().getFullYear()}
     </div>
   </>
 )
@@ -70,7 +70,7 @@ function Sidebar({ mobileOpen, onClose }) {
               <div className="flex items-center gap-2">
                 <span className="text-2xl">☕</span>
                 <span className="font-serif text-lg font-semibold tracking-tight text-stone-800">
-                  Hammerlane Roaster
+                  Roastic
                 </span>
               </div>
               <button
@@ -83,7 +83,7 @@ function Sidebar({ mobileOpen, onClose }) {
             </div>
             <NavItems onNavClick={onClose} />
             <div className="px-6 py-4 text-xs text-stone-400">
-              Hammerlane Roaster &copy; {new Date().getFullYear()}
+              Roastic &copy; {new Date().getFullYear()}
             </div>
           </aside>
         </div>

@@ -66,7 +66,7 @@ async function sendOrderSms(orderId) {
     `Hi ${firstName}, your order is ready to pick up at your normal location or will be shipped ☕`,
     itemLines,
     `– Payment Status: ${billingText}`,
-    `— Hammerlane Roaster`,
+    `— Roastic`,
   ].join('\n');
 
   const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);

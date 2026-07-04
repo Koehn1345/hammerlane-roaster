@@ -21,7 +21,7 @@ function AppLayout() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
-          <span className="font-serif text-base font-semibold text-stone-800">☕ Hammerlane</span>
+          <span className="font-serif text-base font-semibold text-stone-800">☕ Roastic</span>
         </header>
 
         <main className="flex-1 overflow-y-auto">
