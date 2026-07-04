@@ -19,14 +19,14 @@
   --color-stone-100: #eeeeee;
   --color-stone-200: #e0e0e0;
   --color-stone-300: #cccccc;
-  --color-stone-400: #aaaaaa;
-  --color-stone-500: #888888;
-  --color-stone-600: #666666;
-  --color-stone-700: #444444;
+  --color-stone-400: #666666;
+  --color-stone-500: #444444;
+  --color-stone-600: #2a2a2a;
+  --color-stone-700: #1a1a1a;
   --color-stone-800: #222222;
   --color-stone-900: #111111;
 }
 
 body {
-  @apply bg-stone-100 font-sans font-medium text-stone-700 antialiased;
+  @apply bg-stone-100 font-sans font-bold text-stone-700 antialiased;
 }
