@@ -28,5 +28,5 @@
 }
 
 body {
-  @apply bg-stone-100 font-sans text-stone-700 antialiased;
+  @apply bg-stone-100 font-sans font-medium text-stone-700 antialiased;
 }
