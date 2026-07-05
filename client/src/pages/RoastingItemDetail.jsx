@@ -58,8 +58,10 @@ function RoastingItemDetail() {
     setPatching(false)
   }
 
+  const localToday = () => new Date().toLocaleDateString('en-CA')
+
   const markRoasted = async () => {
-    await patch({ status: 'roasted' })
+    await patch({ status: 'roasted', local_date: localToday() })
     navigate('/roasting')
   }
 

@@ -3,6 +3,9 @@ import PageHeader from '../components/PageHeader'
 import { useFetch } from '../hooks/useFetch'
 import api from '../api/client'
 
+// Returns today's date in YYYY-MM-DD local time (not UTC)
+const localToday = () => new Date().toLocaleDateString('en-CA')
+
 const money = (v) => `$${Number(v || 0).toFixed(2)}`
 const lbs = (v) => Number(v || 0).toFixed(2)
 
@@ -123,7 +126,7 @@ function Roasting() {
                     >
                       <td className="px-3 py-2.5" onClick={(e) => e.stopPropagation()}>
                         <button
-                          onClick={(e) => patch(item.id, { status: 'roasted' }, e)}
+                          onClick={(e) => patch(item.id, { status: 'roasted', local_date: localToday() }, e)}
                           className="rounded-md bg-green-700 px-2.5 py-1 text-xs font-semibold text-white whitespace-nowrap transition-colors hover:bg-green-800"
                         >
                           ✓ Roast

@@ -283,7 +283,8 @@ router.patch('/items/:itemId', async (req, res) => {
     sets.push(`status = $${i++}`);
     values.push('roasted');
     sets.push(`roast_date = $${i++}`);
-    values.push(new Date());
+    // Prefer a client-supplied local date (YYYY-MM-DD) to avoid UTC timezone drift
+    values.push(fields.local_date ? fields.local_date : new Date());
   } else if ('status' in fields) {
     sets.push(`status = $${i++}`);
     values.push(fields.status);

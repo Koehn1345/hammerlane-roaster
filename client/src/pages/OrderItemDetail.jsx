@@ -70,8 +70,10 @@ function OrderItemDetail() {
     await refetch()
   }
 
+  const localToday = () => new Date().toLocaleDateString('en-CA')
+
   const markRoasted = async () => {
-    await patchItem({ status: 'roasted' })
+    await patchItem({ status: 'roasted', local_date: localToday() })
   }
 
   const deleteItem = async () => {
