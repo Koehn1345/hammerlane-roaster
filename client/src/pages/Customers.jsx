@@ -23,6 +23,10 @@ function Customers() {
     closeModal()
     refetch()
   }
+  const handleDeleted = () => {
+    closeModal()
+    refetch()
+  }
 
   return (
     <div>
@@ -73,6 +77,7 @@ function Customers() {
             customer={modalMode === 'create' ? null : modalMode}
             onSaved={handleSaved}
             onCancel={closeModal}
+            onDeleted={handleDeleted}
           />
         </Modal>
       )}
