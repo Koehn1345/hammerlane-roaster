@@ -4,7 +4,7 @@ import { useFetch } from '../hooks/useFetch'
 const lbs   = (v) => `${Number(v || 0).toFixed(2)}`
 const money = (v) => `$${Number(v || 0).toFixed(2)}`
 
-// Return the Sunday that starts the week containing a given date string
+// Return the Sunday (YYYY-MM-DD) that starts the week containing a given date string
 function weekKey(dateStr) {
   const d = new Date(dateStr)
   const day = d.getUTCDay() // 0 = Sun
@@ -12,11 +12,14 @@ function weekKey(dateStr) {
   return start.toISOString().slice(0, 10)
 }
 
+const fmt = (d) => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' })
+
+// Show full "Sun Jun 29 – Sat Jul 5, 2026" range
 function weekLabel(key) {
-  const d = new Date(key + 'T00:00:00Z')
-  return 'Week of ' + d.toLocaleDateString('en-US', {
-    month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC',
-  })
+  const sun = new Date(key + 'T00:00:00Z')
+  const sat = new Date(Date.UTC(sun.getUTCFullYear(), sun.getUTCMonth(), sun.getUTCDate() + 6))
+  const year = sat.getUTCFullYear()
+  return `${fmt(sun)} – ${fmt(sat)}, ${year}`
 }
 
 function groupByWeek(rows) {
