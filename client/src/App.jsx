@@ -3,6 +3,7 @@ import AppLayout from './layouts/AppLayout'
 import Dashboard from './pages/Dashboard'
 import Orders from './pages/Orders'
 import Roasting from './pages/Roasting'
+import History from './pages/History'
 import Billing from './pages/Billing'
 import RoastingItemDetail from './pages/RoastingItemDetail'
 import OrderItemDetail from './pages/OrderItemDetail'
@@ -20,6 +21,7 @@ function App() {
         <Route index element={<Dashboard />} />
         <Route path="orders" element={<Orders />} />
         <Route path="roasting" element={<Roasting />} />
+        <Route path="history"  element={<History />} />
         <Route path="billing" element={<Billing />} />
         <Route path="roasting/items/:itemId" element={<RoastingItemDetail />} />
         <Route path="orders/items/:itemId" element={<OrderItemDetail />} />

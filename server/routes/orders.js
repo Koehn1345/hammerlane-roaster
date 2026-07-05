@@ -87,6 +87,33 @@ router.get('/', async (req, res) => {
   }
 });
 
+// All roasted items for the History page, ordered newest first.
+router.get('/roast-history', async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT order_items.id, order_items.roast_date, order_items.grind_type,
+             order_items.quantity, order_items.sale_price_per_bag, order_items.profit,
+             blends.name AS blend_name, customers.name AS customer_name,
+             bag_inventory.size_lbs
+      FROM order_items
+      JOIN orders     ON order_items.order_id   = orders.id
+      JOIN customers  ON orders.customer_id     = customers.id
+      JOIN blends     ON order_items.blend_id   = blends.id
+      LEFT JOIN bag_inventory ON bag_inventory.size_oz = order_items.bag_size_oz
+      WHERE order_items.status = 'roasted' AND order_items.roast_date IS NOT NULL
+      ORDER BY order_items.roast_date DESC, customers.name
+    `);
+    const rows = result.rows.map((r) => ({
+      ...r,
+      weight: (Number(r.size_lbs) || 0) * (Number(r.quantity) || 0),
+      cost:   (Number(r.sale_price_per_bag) || 0) * (Number(r.quantity) || 0),
+    }));
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Flat list of line items still awaiting roast (status = 'processed'), with weight/cost/profit,
 // for the Roasting page.
 router.get('/roasting-list', async (req, res) => {
