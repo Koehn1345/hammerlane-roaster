@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import PageHeader from '../components/PageHeader'
 import DataTable from '../components/DataTable'
 import Modal from '../components/Modal'
@@ -9,21 +10,37 @@ const columns = [
   { key: 'name', label: 'Name' },
   { key: 'description', label: 'Description' },
   { key: 'beans', label: 'Beans' },
+  {
+    key: 'paylink',
+    label: 'Pay Link',
+    format: (v) => v
+      ? <a href={v} target="_blank" rel="noreferrer"
+          onClick={(e) => e.stopPropagation()}
+          className="text-blue-700 underline hover:text-blue-900">Link</a>
+      : <span className="text-stone-400">—</span>,
+  },
+  {
+    key: 'label_pdf_url',
+    label: 'Label PDF',
+    format: (v) => v
+      ? <a href={v} target="_blank" rel="noreferrer"
+          onClick={(e) => e.stopPropagation()}
+          className="text-blue-700 underline hover:text-blue-900">PDF</a>
+      : <span className="text-stone-400">—</span>,
+  },
 ]
 
 function Blends() {
+  const navigate = useNavigate()
   const { data: blends, loading, error, refetch } = useFetch('/blends')
   const [modalMode, setModalMode] = useState(null)
 
   const closeModal = () => setModalMode(null)
-  const handleSaved = () => {
-    closeModal()
-    refetch()
-  }
+  const handleSaved = () => { closeModal(); refetch() }
 
   const rows = blends?.map((blend) => ({
     ...blend,
-    beans: blend.components.map((c) => `${c.origin} (${c.percentage}%)`).join(', ') || '—',
+    beans: blend.components.map((c) => `${c.origin?.trim()} (${Number(c.percentage).toFixed(0)}%)`).join(', ') || '—',
   }))
 
   return (
@@ -54,9 +71,10 @@ function Blends() {
           columns={columns}
           rows={rows}
           emptyMessage="No blends yet."
+          onRowClick={(blend) => navigate(`/blends/${blend.id}`)}
           renderActions={(blend) => (
             <button
-              onClick={() => setModalMode(blend)}
+              onClick={(e) => { e.stopPropagation(); setModalMode(blend) }}
               className="text-sm font-medium text-amber-800 hover:text-amber-900"
             >
               Edit
