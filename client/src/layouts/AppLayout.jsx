@@ -11,7 +11,7 @@ function AppLayout() {
 
       <div className="flex flex-1 flex-col min-w-0">
         {/* Mobile top bar */}
-        <header className="flex items-center gap-3 border-b border-stone-200 bg-stone-50 px-4 py-3 md:hidden">
+        <header className="sticky top-0 z-40 flex items-center gap-3 border-b border-stone-200 bg-stone-50 px-4 py-3 md:hidden">
           <button
             onClick={() => setMobileOpen(true)}
             className="rounded-lg p-1.5 text-stone-600 hover:bg-stone-200"

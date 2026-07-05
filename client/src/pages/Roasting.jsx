@@ -37,11 +37,13 @@ function Roasting() {
 
   const patch = async (id, fields, e) => {
     e?.stopPropagation()
+    const scrollY = window.scrollY        // save position before refetch
     await api.patch(`/orders/items/${id}`, fields)
     refetch()
+    requestAnimationFrame(() => window.scrollTo(0, scrollY))  // restore after render
   }
 
-  if (loading) return <p className="text-sm text-stone-400">Loading roast list…</p>
+  if (loading && !items) return <p className="text-sm text-stone-400">Loading roast list…</p>
   if (error) {
     return (
       <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">

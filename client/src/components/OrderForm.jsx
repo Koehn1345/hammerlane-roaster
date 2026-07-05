@@ -2,6 +2,7 @@ import { useState } from 'react'
 import api from '../api/client'
 import { useFetch } from '../hooks/useFetch'
 import { nullifyEmpty } from '../utils/nullifyEmpty'
+import SearchableSelect from './SearchableSelect'
 
 const emptyItem = { blend_id: '', bag_size_oz: '', grind_type: 'whole', quantity: 1, sale_price_per_bag: '' }
 
@@ -139,10 +140,13 @@ function OrderForm({ order, onSaved, onCancel }) {
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
         <label className="block text-sm font-medium text-stone-700">Customer</label>
-        <select required value={customerId} onChange={(e) => setCustomerId(e.target.value)} className={inputCls}>
-          <option value="">Select customer…</option>
-          {customers?.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-        </select>
+        <SearchableSelect
+          options={(customers || []).map((c) => ({ value: c.id, label: c.name }))}
+          value={customerId}
+          onChange={setCustomerId}
+          placeholder="Search customers…"
+          inputCls={inputCls}
+        />
       </div>
 
       <div>
