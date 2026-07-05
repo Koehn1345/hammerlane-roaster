@@ -1,9 +1,16 @@
 import { useState } from 'react'
-import { Outlet } from 'react-router-dom'
+import { Outlet, useNavigate } from 'react-router-dom'
 import Sidebar from '../components/Sidebar'
+import { usePullToRefresh } from '../hooks/usePullToRefresh'
 
 function AppLayout() {
   const [mobileOpen, setMobileOpen] = useState(false)
+  const navigate = useNavigate()
+
+  // Pull to refresh: reload the current page
+  const { pulling, progress } = usePullToRefresh(() => {
+    navigate(0)  // React Router's equivalent of window.location.reload()
+  })
 
   return (
     <div className="flex min-h-screen bg-stone-100">
@@ -22,6 +29,13 @@ function AppLayout() {
             </svg>
           </button>
           <span className="font-serif text-base font-semibold text-stone-800">☕ Roastic</span>
+
+          {/* Pull-to-refresh spinner shown in the header when pulling */}
+          {pulling && (
+            <span className="ml-auto text-xs text-stone-400">
+              {progress >= 1 ? '↑ Release to refresh' : '↓ Pull to refresh'}
+            </span>
+          )}
         </header>
 
         <main className="flex-1 overflow-y-auto">
