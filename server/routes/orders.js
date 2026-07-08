@@ -73,6 +73,30 @@ async function computeItemCosts({ blend_id, bag_size_oz, quantity, sale_price_pe
   };
 }
 
+// Spreads an order's flat discount across its line items, weighted by each item's
+// share of the order's total revenue, and updates each item's stored profit to match.
+// Must be re-run any time an order's discount or its items (price/qty/added/removed) change.
+async function reallocateDiscount(orderId, dbClient = pool) {
+  const orderResult = await dbClient.query('SELECT discount FROM orders WHERE id = $1', [orderId]);
+  const discount = Number(orderResult.rows[0]?.discount) || 0;
+
+  const itemsResult = await dbClient.query(
+    'SELECT id, sale_price_per_bag, quantity, cost_beans, cost_bags FROM order_items WHERE order_id = $1',
+    [orderId]
+  );
+  const items = itemsResult.rows;
+  const totalRevenue = items.reduce(
+    (sum, it) => sum + (Number(it.sale_price_per_bag) || 0) * (Number(it.quantity) || 0), 0
+  );
+
+  for (const item of items) {
+    const revenue = (Number(item.sale_price_per_bag) || 0) * (Number(item.quantity) || 0);
+    const share   = totalRevenue > 0 ? (revenue / totalRevenue) * discount : 0;
+    const profit  = revenue - Number(item.cost_beans || 0) - Number(item.cost_bags || 0) - share;
+    await dbClient.query('UPDATE order_items SET profit = $1 WHERE id = $2', [profit.toFixed(2), item.id]);
+  }
+}
+
 router.get('/', async (req, res) => {
   try {
     const result = await pool.query(`
@@ -140,7 +164,7 @@ router.get('/roasting-list', async (req, res) => {
 });
 
 // Create an order with one or more line items
-// body: { customer_id, notes, items: [{ blend_id, bag_size_oz, grind_type, quantity, sale_price_per_bag }] }
+// body: { customer_id, notes, discount, items: [{ blend_id, bag_size_oz, grind_type, quantity, sale_price_per_bag }] }
 router.post('/', async (req, res) => {
   const { customer_id, notes, items } = req.body;
   if (!Array.isArray(items) || !items.length) {
@@ -153,10 +177,11 @@ router.post('/', async (req, res) => {
 
     const validBilling = ['not_billed', 'billed', 'paid'];
     const billing = validBilling.includes(req.body.billing_status) ? req.body.billing_status : 'not_billed';
+    const discount = Number(req.body.discount) || 0;
 
     const orderResult = await client.query(
-      `INSERT INTO orders (customer_id, notes, billing_status) VALUES ($1, $2, $3) RETURNING *`,
-      [customer_id, notes || null, billing]
+      `INSERT INTO orders (customer_id, notes, billing_status, discount) VALUES ($1, $2, $3, $4) RETURNING *`,
+      [customer_id, notes || null, billing, discount]
     );
     const order = orderResult.rows[0];
 
@@ -170,6 +195,8 @@ router.post('/', async (req, res) => {
          item.sale_price_per_bag, costs.cost_beans, costs.cost_bags, costs.profit]
       );
     }
+
+    if (discount > 0) await reallocateDiscount(order.id, client);
 
     await client.query('COMMIT');
     const [withItems] = await attachItems([order]);
@@ -185,7 +212,7 @@ router.post('/', async (req, res) => {
 // Update order header fields (customer, notes, billing_status) — partial update
 router.patch('/:id', async (req, res) => {
   const fields = req.body;
-  const allowed = ['customer_id', 'notes', 'billing_status'];
+  const allowed = ['customer_id', 'notes', 'billing_status', 'discount'];
   const sets = [];
   const values = [];
   let i = 1;
@@ -205,6 +232,7 @@ router.patch('/:id', async (req, res) => {
       values
     );
     if (!result.rows.length) return res.status(404).json({ error: 'Not found' });
+    if ('discount' in fields) await reallocateDiscount(req.params.id);
     const [withItems] = await attachItems(result.rows);
     res.json(withItems);
   } catch (err) {
@@ -226,7 +254,7 @@ router.get('/items/:itemId', async (req, res) => {
   try {
     const result = await pool.query(
       `SELECT order_items.*, blends.name AS blend_name, customers.name AS customer_name,
-              orders.billing_status, orders.notes AS order_notes,
+              orders.billing_status, orders.notes AS order_notes, orders.discount AS order_discount,
               bag_inventory.size_lbs, bag_inventory.size_label
        FROM order_items
        JOIN orders     ON order_items.order_id   = orders.id
@@ -256,7 +284,9 @@ router.post('/:id/items', async (req, res) => {
       [req.params.id, blend_id, bag_size_oz, grind_type || 'whole', quantity, sale_price_per_bag,
        costs.cost_beans, costs.cost_bags, costs.profit]
     );
-    res.json(result.rows[0]);
+    await reallocateDiscount(req.params.id);
+    const refreshed = await pool.query('SELECT * FROM order_items WHERE id = $1', [result.rows[0].id]);
+    res.json(refreshed.rows[0]);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -310,7 +340,12 @@ router.patch('/items/:itemId', async (req, res) => {
     );
     if (!result.rows.length) return res.status(404).json({ error: 'Not found' });
 
-    const updatedItem = result.rows[0];
+    let updatedItem = result.rows[0];
+    if (recomputeTriggers.some((key) => key in fields)) {
+      await reallocateDiscount(updatedItem.order_id);
+      const refreshed = await pool.query('SELECT * FROM order_items WHERE id = $1', [updatedItem.id]);
+      updatedItem = refreshed.rows[0];
+    }
     res.json(updatedItem);
 
     // Fire SMS if this mark-roasted completed the whole order (non-blocking)
@@ -326,7 +361,8 @@ router.patch('/items/:itemId', async (req, res) => {
 
 router.delete('/items/:itemId', async (req, res) => {
   try {
-    await pool.query('DELETE FROM order_items WHERE id = $1', [req.params.itemId]);
+    const result = await pool.query('DELETE FROM order_items WHERE id = $1 RETURNING order_id', [req.params.itemId]);
+    if (result.rows.length) await reallocateDiscount(result.rows[0].order_id);
     res.json({ ok: true });
   } catch (err) {
     res.status(500).json({ error: err.message });

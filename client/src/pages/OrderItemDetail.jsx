@@ -138,6 +138,12 @@ function OrderItemDetail() {
             <p className="text-xs uppercase tracking-wide text-stone-400">Profit</p>
             <p className="font-semibold text-green-700">{money(item.profit)}</p>
           </div>
+          {Number(item.order_discount) > 0 && (
+            <div>
+              <p className="text-xs uppercase tracking-wide text-stone-400">Order Discount</p>
+              <p className="font-medium text-stone-800">{money(item.order_discount)}</p>
+            </div>
+          )}
           {item.roast_date && (
             <div className="col-span-2">
               <p className="text-xs uppercase tracking-wide text-stone-400">Roasted</p>

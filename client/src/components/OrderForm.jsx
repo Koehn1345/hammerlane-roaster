@@ -84,6 +84,7 @@ function OrderForm({ order, onSaved, onCancel }) {
   const [customerId, setCustomerId] = useState(order?.customer_id || '')
   const [billingStatus, setBillingStatus] = useState(order?.billing_status || 'not_billed')
   const [notes, setNotes] = useState(order?.notes || '')
+  const [discount, setDiscount] = useState(order?.discount || '')
   const [items, setItems] = useState(
     order?.items?.length
       ? order.items.map((i) => ({
@@ -107,10 +108,11 @@ function OrderForm({ order, onSaved, onCancel }) {
     setSaving(true)
     setError(null)
     try {
-      const payload = { customer_id: customerId, notes, billing_status: billingStatus, items: items.map(nullifyEmpty) }
+      const discountValue = discount === '' ? 0 : discount
+      const payload = { customer_id: customerId, notes, billing_status: billingStatus, discount: discountValue, items: items.map(nullifyEmpty) }
       if (order) {
         // Patch order header
-        const res = await api.patch(`/orders/${order.id}`, { customer_id: customerId, notes, billing_status: billingStatus })
+        const res = await api.patch(`/orders/${order.id}`, { customer_id: customerId, notes, billing_status: billingStatus, discount: discountValue })
         // Patch each line item that has a known ID
         for (let idx = 0; idx < items.length; idx++) {
           const originalItem = order.items?.[idx]
@@ -175,6 +177,20 @@ function OrderForm({ order, onSaved, onCancel }) {
       <div>
         <label className="block text-sm font-medium text-stone-700">Notes</label>
         <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} className={inputCls} />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-stone-700">Discount ($)</label>
+        <input
+          type="number"
+          step="0.01"
+          min="0"
+          placeholder="0.00"
+          value={discount}
+          onChange={(e) => setDiscount(e.target.value)}
+          className={inputCls}
+        />
+        <p className="mt-1 text-xs text-stone-400">Flat amount off the whole order — e.g. a subscription discount. Spread across items for profit tracking.</p>
       </div>
 
       <div>
