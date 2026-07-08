@@ -32,10 +32,7 @@ async function attachItems(orders) {
 // Computes green bean cost, bag cost, and projected profit for one order line item.
 //
 // Green bean formula (per component):
-//   (cost_per_lb / 16) * 18 * (percentage / 100) * quantity_lbs
-//
-// The 18/16 factor accounts for roasting loss — ~18 oz of green beans are needed
-// to produce 16 oz of roasted coffee (~12.5% weight loss during roasting).
+//   cost_per_lb * (percentage / 100) * quantity_lbs
 async function computeItemCosts({ blend_id, bag_size_oz, quantity, sale_price_per_bag }) {
   const componentsResult = await pool.query(
     `SELECT bc.percentage, gb.cost_per_lb
@@ -59,7 +56,7 @@ async function computeItemCosts({ blend_id, bag_size_oz, quantity, sale_price_pe
   for (const comp of componentsResult.rows) {
     const pct      = Number(comp.percentage)  / 100;
     const costPerLb = Number(comp.cost_per_lb) || 0;
-    costBeans += (costPerLb / 16) * 18 * pct * quantityLbs;
+    costBeans += costPerLb * pct * quantityLbs;
   }
 
   const costBags = bagCostEach * qty;
