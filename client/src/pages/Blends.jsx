@@ -11,6 +11,11 @@ const columns = [
   { key: 'description', label: 'Description' },
   { key: 'beans', label: 'Beans' },
   {
+    key: 'cost_per_lb',
+    label: 'Cost / lb',
+    format: (v) => v != null ? `$${Number(v).toFixed(2)}` : '—',
+  },
+  {
     key: 'paylink',
     label: 'Pay Link',
     format: (v) => v

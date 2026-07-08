@@ -6,14 +6,18 @@ async function withComponents(blends) {
   if (!blends.length) return blends;
   const ids = blends.map((b) => b.id);
   const components = await pool.query(
-    `SELECT bc.*, gb.origin FROM blend_components bc
+    `SELECT bc.*, gb.origin, gb.cost_per_lb FROM blend_components bc
      JOIN green_beans gb ON bc.green_bean_id = gb.id
      WHERE bc.blend_id = ANY($1)`, [ids]
   );
-  return blends.map((blend) => ({
-    ...blend,
-    components: components.rows.filter((c) => c.blend_id === blend.id),
-  }));
+  return blends.map((blend) => {
+    const blendComponents = components.rows.filter((c) => c.blend_id === blend.id);
+    // Weighted-average green bean cost per lb, by each component's share of the blend
+    const costPerLb = blendComponents.reduce(
+      (sum, c) => sum + (Number(c.percentage) / 100) * (Number(c.cost_per_lb) || 0), 0
+    );
+    return { ...blend, components: blendComponents, cost_per_lb: costPerLb.toFixed(2) };
+  });
 }
 
 router.get('/', async (req, res) => {
