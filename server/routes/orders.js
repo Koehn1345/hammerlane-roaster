@@ -73,12 +73,13 @@ async function computeItemCosts({ blend_id, bag_size_oz, quantity, sale_price_pe
   };
 }
 
-// Spreads an order's flat discount across its line items, weighted by each item's
+// Spreads an order's discount (flat $ or %) across its line items, weighted by each item's
 // share of the order's total revenue, and updates each item's stored profit to match.
 // Must be re-run any time an order's discount or its items (price/qty/added/removed) change.
 async function reallocateDiscount(orderId, dbClient = pool) {
-  const orderResult = await dbClient.query('SELECT discount FROM orders WHERE id = $1', [orderId]);
-  const discount = Number(orderResult.rows[0]?.discount) || 0;
+  const orderResult = await dbClient.query('SELECT discount, discount_type FROM orders WHERE id = $1', [orderId]);
+  const discountValue = Number(orderResult.rows[0]?.discount) || 0;
+  const discountType  = orderResult.rows[0]?.discount_type || 'flat';
 
   const itemsResult = await dbClient.query(
     'SELECT id, sale_price_per_bag, quantity, cost_beans, cost_bags FROM order_items WHERE order_id = $1',
@@ -88,10 +89,11 @@ async function reallocateDiscount(orderId, dbClient = pool) {
   const totalRevenue = items.reduce(
     (sum, it) => sum + (Number(it.sale_price_per_bag) || 0) * (Number(it.quantity) || 0), 0
   );
+  const discountAmount = discountType === 'percent' ? totalRevenue * (discountValue / 100) : discountValue;
 
   for (const item of items) {
     const revenue = (Number(item.sale_price_per_bag) || 0) * (Number(item.quantity) || 0);
-    const share   = totalRevenue > 0 ? (revenue / totalRevenue) * discount : 0;
+    const share   = totalRevenue > 0 ? (revenue / totalRevenue) * discountAmount : 0;
     const profit  = revenue - Number(item.cost_beans || 0) - Number(item.cost_bags || 0) - share;
     await dbClient.query('UPDATE order_items SET profit = $1 WHERE id = $2', [profit.toFixed(2), item.id]);
   }
@@ -164,7 +166,7 @@ router.get('/roasting-list', async (req, res) => {
 });
 
 // Create an order with one or more line items
-// body: { customer_id, notes, discount, items: [{ blend_id, bag_size_oz, grind_type, quantity, sale_price_per_bag }] }
+// body: { customer_id, notes, discount, discount_type, items: [{ blend_id, bag_size_oz, grind_type, quantity, sale_price_per_bag }] }
 router.post('/', async (req, res) => {
   const { customer_id, notes, items } = req.body;
   if (!Array.isArray(items) || !items.length) {
@@ -178,10 +180,11 @@ router.post('/', async (req, res) => {
     const validBilling = ['not_billed', 'billed', 'paid'];
     const billing = validBilling.includes(req.body.billing_status) ? req.body.billing_status : 'not_billed';
     const discount = Number(req.body.discount) || 0;
+    const discountType = req.body.discount_type === 'percent' ? 'percent' : 'flat';
 
     const orderResult = await client.query(
-      `INSERT INTO orders (customer_id, notes, billing_status, discount) VALUES ($1, $2, $3, $4) RETURNING *`,
-      [customer_id, notes || null, billing, discount]
+      `INSERT INTO orders (customer_id, notes, billing_status, discount, discount_type) VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+      [customer_id, notes || null, billing, discount, discountType]
     );
     const order = orderResult.rows[0];
 
@@ -212,7 +215,7 @@ router.post('/', async (req, res) => {
 // Update order header fields (customer, notes, billing_status) — partial update
 router.patch('/:id', async (req, res) => {
   const fields = req.body;
-  const allowed = ['customer_id', 'notes', 'billing_status', 'discount'];
+  const allowed = ['customer_id', 'notes', 'billing_status', 'discount', 'discount_type'];
   const sets = [];
   const values = [];
   let i = 1;
@@ -232,7 +235,7 @@ router.patch('/:id', async (req, res) => {
       values
     );
     if (!result.rows.length) return res.status(404).json({ error: 'Not found' });
-    if ('discount' in fields) await reallocateDiscount(req.params.id);
+    if ('discount' in fields || 'discount_type' in fields) await reallocateDiscount(req.params.id);
     const [withItems] = await attachItems(result.rows);
     res.json(withItems);
   } catch (err) {
@@ -255,6 +258,7 @@ router.get('/items/:itemId', async (req, res) => {
     const result = await pool.query(
       `SELECT order_items.*, blends.name AS blend_name, customers.name AS customer_name,
               orders.billing_status, orders.notes AS order_notes, orders.discount AS order_discount,
+              orders.discount_type AS order_discount_type,
               bag_inventory.size_lbs, bag_inventory.size_label
        FROM order_items
        JOIN orders     ON order_items.order_id   = orders.id

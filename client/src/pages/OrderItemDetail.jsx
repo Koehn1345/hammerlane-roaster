@@ -141,7 +141,9 @@ function OrderItemDetail() {
           {Number(item.order_discount) > 0 && (
             <div>
               <p className="text-xs uppercase tracking-wide text-stone-400">Order Discount</p>
-              <p className="font-medium text-stone-800">{money(item.order_discount)}</p>
+              <p className="font-medium text-stone-800">
+                {item.order_discount_type === 'percent' ? `${Number(item.order_discount)}%` : money(item.order_discount)}
+              </p>
             </div>
           )}
           {item.roast_date && (
