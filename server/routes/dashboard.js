@@ -4,16 +4,17 @@ const pool    = require('../db/db');
 
 router.get('/', async (req, res) => {
   try {
-    // Pounds roasted + profit across three time windows in one pass
+    // Pounds roasted + profit across three time windows in one pass.
+    // "Week" is the current Sun–Sat calendar week (matching the History page), not a rolling 7 days.
     const statsResult = await pool.query(`
       SELECT
-        COALESCE(SUM(CASE WHEN oi.roast_date >= CURRENT_DATE - 7
+        COALESCE(SUM(CASE WHEN oi.roast_date >= CURRENT_DATE - EXTRACT(DOW FROM CURRENT_DATE)::int
           THEN bi.size_lbs * oi.quantity END), 0)             AS week_lbs,
         COALESCE(SUM(CASE WHEN oi.roast_date >= date_trunc('month', CURRENT_DATE)
           THEN bi.size_lbs * oi.quantity END), 0)             AS month_lbs,
         COALESCE(SUM(CASE WHEN oi.roast_date >= date_trunc('year', CURRENT_DATE)
           THEN bi.size_lbs * oi.quantity END), 0)             AS year_lbs,
-        COALESCE(SUM(CASE WHEN oi.roast_date >= CURRENT_DATE - 7
+        COALESCE(SUM(CASE WHEN oi.roast_date >= CURRENT_DATE - EXTRACT(DOW FROM CURRENT_DATE)::int
           THEN oi.profit END), 0)                             AS week_profit,
         COALESCE(SUM(CASE WHEN oi.roast_date >= date_trunc('month', CURRENT_DATE)
           THEN oi.profit END), 0)                             AS month_profit,
