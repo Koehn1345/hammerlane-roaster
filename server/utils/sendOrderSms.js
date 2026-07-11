@@ -35,7 +35,7 @@ async function sendOrderSms(orderId) {
   // Fetch all items for the order
   const itemsRes = await pool.query(
     `SELECT oi.status, oi.grind_type, oi.quantity,
-            b.name AS blend_name,
+            b.name AS blend_name, b.paylink,
             bi.size_label, bi.size_lbs
      FROM order_items oi
      JOIN blends b ON oi.blend_id = b.id
@@ -49,21 +49,22 @@ async function sendOrderSms(orderId) {
   // Only fire when every item is roasted
   if (!items.length || !items.every((i) => i.status === 'roasted')) return;
 
-  // Build item lines
-  const itemLines = items.map((item) => {
+  // Build item lines — each item, followed by its blend's payment link if one is set
+  const itemLines = items.flatMap((item) => {
     const lbs   = parseFloat(item.size_lbs) || 0;
     const size  = lbs === 0.5 ? '1/2 lb'
                 : Number.isInteger(lbs) ? `${lbs} lb`
                 : (item.size_label?.trim() || `${lbs} lb`);
     const grind = item.grind_type === 'ground' ? 'Ground' : 'Whole Bean';
-    return `– ${item.blend_name} (${size}, ${grind})`;
+    const lines = [`– ${item.blend_name} (${size}, ${grind})`];
+    if (item.paylink) lines.push(item.paylink);
+    return lines;
   }).join('\n');
 
-  const firstName   = order.customer_name.split(' ')[0];
   const billingText = BILLING_LABEL[order.billing_status] ?? 'Not Billed';
 
   const body = [
-    `Hi ${firstName}, your order is ready to pick up at your normal location or will be shipped ☕`,
+    `Hi, your order is ready to pick up at your normal location or will be shipped ☕`,
     itemLines,
     `– Payment Status: ${billingText}`,
     `— Roastic`,
