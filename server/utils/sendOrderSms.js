@@ -56,7 +56,7 @@ async function sendOrderSms(orderId) {
                 : Number.isInteger(lbs) ? `${lbs} lb`
                 : (item.size_label?.trim() || `${lbs} lb`);
     const grind = item.grind_type === 'ground' ? 'Ground' : 'Whole Bean';
-    return `– ${item.blend_name} (${size}, ${grind})`;
+    return `* ${item.blend_name} (${size}, ${grind})`;
   }).join('\n');
 
   const billingText = BILLING_LABEL[order.billing_status] ?? 'Not Billed';
@@ -69,13 +69,13 @@ async function sendOrderSms(orderId) {
   const bodyParts = [
     `Hi, your order is ready to pick up at your normal location or will be shipped ☕`,
     itemLines,
-    `– Payment Status: ${billingText}`,
+    `* Payment Status: ${billingText}`,
   ];
   if (paylinks.length) {
-    bodyParts.push(`Click on the line below to pay:`);
-    bodyParts.push(paylinks.map((link) => `– ${link}`).join('\n'));
+    bodyParts.push(`* Click on the line below to pay:`);
+    bodyParts.push(paylinks.join('\n'));
   }
-  bodyParts.push(`Thanks!`, `Hammerlane Coffee - Roastic`);
+  bodyParts.push(``, `Thanks!`, `Hammerlane Coffee - Roastic`);
 
   const body = bodyParts.join('\n');
 
