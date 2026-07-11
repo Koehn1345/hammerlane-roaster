@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom'
 import api from '../api/client'
 import { formatDate } from '../utils/format'
 
@@ -46,7 +47,8 @@ function flattenItems(orders) {
   return rows
 }
 
-function OrdersTable({ orders, refetch, onEdit }) {
+function OrdersTable({ orders, refetch }) {
+  const navigate = useNavigate()
   const rows = flattenItems(orders || []).filter((r) => r.status === 'new')
 
   if (rows.length === 0) {
@@ -86,13 +88,16 @@ function OrdersTable({ orders, refetch, onEdit }) {
             <th className="px-3 py-3 font-medium">Qty</th>
             <th className="px-3 py-3 font-medium">Price / Bag</th>
             <th className="px-3 py-3 font-medium">Billing</th>
-            <th className="px-3 py-3 font-medium" />
           </tr>
         </thead>
         <tbody className="divide-y divide-stone-100">
           {rows.map((row) => (
-            <tr key={row.id} className="hover:bg-amber-50/40">
-              <td className="px-2 py-2.5">
+            <tr
+              key={row.id}
+              onClick={() => navigate(`/orders/items/${row.id}`)}
+              className="cursor-pointer hover:bg-amber-50/40"
+            >
+              <td className="px-2 py-2.5" onClick={(e) => e.stopPropagation()}>
                 <button
                   title="Mark Processed"
                   onClick={() => patchItem(row.id, { status: 'processed' })}
@@ -112,21 +117,13 @@ function OrdersTable({ orders, refetch, onEdit }) {
               <td className="px-3 py-2.5 text-stone-700 whitespace-nowrap">
                 {row.sale_price_per_bag != null ? `$${Number(row.sale_price_per_bag).toFixed(2)}` : '—'}
               </td>
-              <td className="px-3 py-2.5">
+              <td className="px-3 py-2.5" onClick={(e) => e.stopPropagation()}>
                 <Badge
                   label={BILLING_LABEL[row.billing_status] ?? row.billing_status}
                   style={BILLING_STYLE[row.billing_status] ?? BILLING_STYLE.not_billed}
                   onClick={() => cycleBilling(row)}
                   title="Click to advance billing status"
                 />
-              </td>
-              <td className="px-3 py-2.5 text-right">
-                <button
-                  onClick={() => onEdit(row)}
-                  className="text-sm font-medium text-amber-800 hover:text-amber-900"
-                >
-                  Edit
-                </button>
               </td>
             </tr>
           ))}

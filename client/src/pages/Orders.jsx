@@ -36,11 +36,7 @@ function Orders() {
       )}
 
       {!loading && !error && (
-        <OrdersTable
-          orders={orders}
-          refetch={refetch}
-          onEdit={(row) => setModalMode(orders.find((o) => o.id === row.order_id))}
-        />
+        <OrdersTable orders={orders} refetch={refetch} />
       )}
 
       {modalMode && (
