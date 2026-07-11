@@ -49,27 +49,35 @@ async function sendOrderSms(orderId) {
   // Only fire when every item is roasted
   if (!items.length || !items.every((i) => i.status === 'roasted')) return;
 
-  // Build item lines — each item, followed by its blend's payment link (only while unbilled)
-  const itemLines = items.flatMap((item) => {
+  // Build item lines
+  const itemLines = items.map((item) => {
     const lbs   = parseFloat(item.size_lbs) || 0;
     const size  = lbs === 0.5 ? '1/2 lb'
                 : Number.isInteger(lbs) ? `${lbs} lb`
                 : (item.size_label?.trim() || `${lbs} lb`);
     const grind = item.grind_type === 'ground' ? 'Ground' : 'Whole Bean';
-    const lines = [`– ${item.blend_name} (${size}, ${grind})`];
-    if (item.paylink && order.billing_status === 'not_billed') lines.push(item.paylink);
-    return lines;
+    return `– ${item.blend_name} (${size}, ${grind})`;
   }).join('\n');
 
   const billingText = BILLING_LABEL[order.billing_status] ?? 'Not Billed';
 
-  const body = [
+  // Payment links (only while unbilled), shown below Payment Status
+  const paylinks = order.billing_status === 'not_billed'
+    ? items.map((i) => i.paylink).filter(Boolean)
+    : [];
+
+  const bodyParts = [
     `Hi, your order is ready to pick up at your normal location or will be shipped ☕`,
     itemLines,
     `– Payment Status: ${billingText}`,
-    `Thanks!`,
-    `Hammerlane Coffee - Roastic`,
-  ].join('\n');
+  ];
+  if (paylinks.length) {
+    bodyParts.push(`Click on the line below to pay:`);
+    bodyParts.push(paylinks.map((link) => `– ${link}`).join('\n'));
+  }
+  bodyParts.push(`Thanks!`, `Hammerlane Coffee - Roastic`);
+
+  const body = bodyParts.join('\n');
 
   const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
   await client.messages.create({
