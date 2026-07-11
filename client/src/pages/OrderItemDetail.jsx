@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import Modal from '../components/Modal'
 import OrderForm from '../components/OrderForm'
 import { useFetch } from '../hooks/useFetch'
@@ -51,12 +51,19 @@ function RoasterBtn({ label, active, onClick }) {
 function OrderItemDetail() {
   const { itemId }  = useParams()
   const navigate    = useNavigate()
+  const location    = useLocation()
   const { data: item, loading, error, refetch } = useFetch(`/orders/items/${itemId}`)
   const { data: orders } = useFetch('/orders')
 
   const [editing,       setEditing]       = useState(false)
   const [patching,      setPatching]      = useState(false)
+  const [duplicating,   setDuplicating]   = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
+
+  // Land straight in edit mode when arriving from "Duplicate Order"
+  useEffect(() => {
+    if (location.state?.openEdit) setEditing(true)
+  }, [location.state])
 
   const patchItem = async (fields) => {
     setPatching(true)
@@ -79,6 +86,31 @@ function OrderItemDetail() {
   const deleteItem = async () => {
     await api.delete(`/orders/items/${itemId}`)
     navigate(-1)
+  }
+
+  const duplicateOrder = async () => {
+    if (!parentOrder) return
+    setDuplicating(true)
+    try {
+      const res = await api.post('/orders', {
+        customer_id: parentOrder.customer_id,
+        notes: parentOrder.notes,
+        billing_status: 'not_billed',
+        discount: parentOrder.discount,
+        discount_type: parentOrder.discount_type,
+        items: parentOrder.items.map((i) => ({
+          blend_id: i.blend_id,
+          bag_size_oz: i.bag_size_oz,
+          grind_type: i.grind_type,
+          quantity: i.quantity,
+          sale_price_per_bag: i.sale_price_per_bag,
+        })),
+      })
+      const newItemId = res.data.items[0]?.id
+      navigate(`/orders/items/${newItemId}`, { state: { openEdit: true } })
+    } finally {
+      setDuplicating(false)
+    }
   }
 
   if (loading && !item) return <p className="p-6 text-sm text-stone-400">Loading…</p>
@@ -221,6 +253,15 @@ function OrderItemDetail() {
           </div>
         )}
       </div>
+
+      {/* Duplicate */}
+      <button
+        onClick={duplicateOrder}
+        disabled={duplicating}
+        className="mt-3 w-full rounded-xl border-2 border-dashed border-stone-200 bg-white py-3 text-sm font-medium text-stone-500 transition-colors hover:border-stone-300 hover:text-stone-700 disabled:opacity-50"
+      >
+        {duplicating ? 'Duplicating…' : '⧉ Duplicate Order'}
+      </button>
 
       {/* Delete */}
       <div className="mt-4 flex justify-center">
