@@ -78,6 +78,20 @@ async function sendOrderSms(orderId) {
     to:   phone,
   });
 
+  // Send the owner a copy so they know an order text went out, and to whom
+  const ownerPhone = toE164(process.env.OWNER_PHONE_NUMBER);
+  if (ownerPhone) {
+    try {
+      await client.messages.create({
+        body: `Sent to ${order.customer_name}:\n\n${body}`,
+        from: process.env.TWILIO_PHONE_NUMBER,
+        to:   ownerPhone,
+      });
+    } catch (err) {
+      console.error(`Owner SMS copy failed for order ${orderId}:`, err.message);
+    }
+  }
+
   await pool.query('UPDATE orders SET sms_sent = true WHERE id = $1', [orderId]);
   console.log(`SMS sent → order ${orderId} | ${order.customer_name} | ${phone}`);
 }
