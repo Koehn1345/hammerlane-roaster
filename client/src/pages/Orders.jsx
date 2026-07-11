@@ -17,15 +17,14 @@ function Orders() {
       <PageHeader
         title="Orders"
         description="Track customer orders from roast to delivery."
-        action={
-          <button
-            onClick={() => setModalMode('create')}
-            className="rounded-lg bg-amber-800 px-4 py-2 text-sm font-medium text-amber-50 shadow-sm transition-colors hover:bg-amber-900"
-          >
-            New Order
-          </button>
-        }
       />
+
+      <button
+        onClick={() => setModalMode('create')}
+        className="fixed bottom-6 left-6 z-30 flex items-center gap-2 rounded-full bg-amber-800 px-5 py-3 text-sm font-medium text-amber-50 shadow-lg transition-colors hover:bg-amber-900"
+      >
+        <span className="text-lg leading-none">+</span> New Order
+      </button>
 
       {loading && <p className="text-sm text-stone-400">Loading orders…</p>}
 
