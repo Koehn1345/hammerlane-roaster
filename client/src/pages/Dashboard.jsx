@@ -1,4 +1,6 @@
+import { useNavigate } from 'react-router-dom'
 import PageHeader from '../components/PageHeader'
+import NewOrderButton from '../components/NewOrderButton'
 import { useFetch } from '../hooks/useFetch'
 
 const lbs    = (v) => `${Number(v || 0).toFixed(2)} lbs`
@@ -34,13 +36,17 @@ function InventoryList({ rows, valueKey, valueFormat, emptyMessage }) {
 }
 
 function Dashboard() {
+  const navigate = useNavigate()
   const { data, loading, error } = useFetch('/dashboard')
 
   if (loading) return <p className="text-sm text-stone-400">Loading…</p>
   if (error) return (
-    <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-      Couldn't load dashboard: {error}
-    </div>
+    <>
+      <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+        Couldn't load dashboard: {error}
+      </div>
+      <NewOrderButton onCreated={() => navigate('/orders')} />
+    </>
   )
 
   const beanRows = (data?.greenBeans || []).map((b) => ({
@@ -56,6 +62,8 @@ function Dashboard() {
   return (
     <div className="space-y-8">
       <PageHeader title="Dashboard" description="Roastery at a glance." />
+
+      <NewOrderButton onCreated={() => navigate('/orders')} />
 
       {/* Pounds Roasted */}
       <section>
