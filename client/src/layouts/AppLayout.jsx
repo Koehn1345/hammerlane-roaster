@@ -13,7 +13,7 @@ function AppLayout() {
   })
 
   return (
-    <div className="flex min-h-screen bg-stone-100">
+    <div className="flex h-screen overflow-hidden bg-stone-100">
       <Sidebar mobileOpen={mobileOpen} onClose={() => setMobileOpen(false)} />
 
       <div className="flex flex-1 flex-col min-w-0">
