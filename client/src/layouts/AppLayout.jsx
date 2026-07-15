@@ -18,21 +18,21 @@ function AppLayout() {
 
       <div className="flex flex-1 flex-col min-w-0">
         {/* Mobile top bar */}
-        <header className="sticky top-0 z-40 flex items-center gap-3 border-b border-stone-200 bg-stone-50 px-4 py-3 md:hidden">
+        <header className="sticky top-0 z-40 flex items-center gap-3 border-b border-stone-600 bg-stone-500 px-4 py-3 md:hidden">
           <button
             onClick={() => setMobileOpen(true)}
-            className="rounded-lg p-1.5 text-stone-600 hover:bg-stone-200"
+            className="rounded-lg p-1.5 text-stone-200 hover:bg-stone-600"
             aria-label="Open menu"
           >
             <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
-          <span className="font-serif text-base font-semibold text-stone-800">☕ Roastic</span>
+          <span className="font-serif text-base font-semibold text-white">☕ Roastic</span>
 
           {/* Pull-to-refresh spinner shown in the header when pulling */}
           {pulling && (
-            <span className="ml-auto text-xs text-stone-400">
+            <span className="ml-auto text-xs text-stone-300">
               {progress >= 1 ? '↑ Release to refresh' : '↓ Pull to refresh'}
             </span>
           )}

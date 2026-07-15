@@ -25,7 +25,7 @@ function NavItems({ onNavClick }) {
             `rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
               isActive
                 ? 'bg-amber-800 text-amber-50 shadow-sm'
-                : 'text-stone-600 hover:bg-stone-200/70 hover:text-stone-900'
+                : 'text-stone-200 hover:bg-stone-600/70 hover:text-white'
             }`
           }
         >
@@ -40,12 +40,12 @@ const SidebarContent = ({ onNavClick }) => (
   <>
     <div className="flex items-center gap-2 px-6 py-6">
       <span className="text-2xl">☕</span>
-      <span className="font-serif text-lg font-semibold tracking-tight text-stone-800">
+      <span className="font-serif text-lg font-semibold tracking-tight text-white">
         Roastic
       </span>
     </div>
     <NavItems onNavClick={onNavClick} />
-    <div className="px-6 py-4 text-xs text-stone-400">
+    <div className="px-6 py-4 text-xs text-stone-300">
       Roastic &copy; {new Date().getFullYear()}
     </div>
   </>
@@ -55,7 +55,7 @@ function Sidebar({ mobileOpen, onClose }) {
   return (
     <>
       {/* Desktop sidebar */}
-      <aside className="hidden md:flex h-screen w-64 shrink-0 flex-col border-r border-stone-200 bg-stone-50">
+      <aside className="hidden md:flex h-screen w-64 shrink-0 flex-col border-r border-stone-600 bg-stone-500">
         <SidebarContent />
       </aside>
 
@@ -66,24 +66,24 @@ function Sidebar({ mobileOpen, onClose }) {
             className="absolute inset-0 bg-stone-900/40"
             onClick={onClose}
           />
-          <aside className="absolute left-0 top-0 flex h-full w-72 flex-col bg-stone-50 shadow-xl">
+          <aside className="absolute left-0 top-0 flex h-full w-72 flex-col bg-stone-500 shadow-xl">
             <div className="flex items-center justify-between px-6 py-5">
               <div className="flex items-center gap-2">
                 <span className="text-2xl">☕</span>
-                <span className="font-serif text-lg font-semibold tracking-tight text-stone-800">
+                <span className="font-serif text-lg font-semibold tracking-tight text-white">
                   Roastic
                 </span>
               </div>
               <button
                 onClick={onClose}
-                className="text-stone-400 hover:text-stone-600"
+                className="text-stone-300 hover:text-white"
                 aria-label="Close menu"
               >
                 ✕
               </button>
             </div>
             <NavItems onNavClick={onClose} />
-            <div className="px-6 py-4 text-xs text-stone-400">
+            <div className="px-6 py-4 text-xs text-stone-300">
               Roastic &copy; {new Date().getFullYear()}
             </div>
           </aside>
