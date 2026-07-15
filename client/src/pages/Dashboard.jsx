@@ -16,7 +16,7 @@ function StatCard({ label, value }) {
 }
 
 function SectionHeader({ title }) {
-  return <h2 className="mb-3 font-serif text-lg font-semibold text-stone-700">{title}</h2>
+  return <h2 className="mb-3 font-serif text-lg font-semibold text-stone-100">{title}</h2>
 }
 
 function InventoryList({ rows, valueKey, valueFormat, emptyMessage }) {

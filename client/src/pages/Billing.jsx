@@ -94,7 +94,7 @@ function Billing() {
 
         {/* Not Billed */}
         <div>
-          <h2 className="mb-3 font-serif text-lg font-semibold text-stone-700">Not Billed</h2>
+          <h2 className="mb-3 font-serif text-lg font-semibold text-stone-100">Not Billed</h2>
           {notBilledGroups.length === 0 ? (
             <div className="rounded-xl border border-dashed border-stone-300 bg-white/60 p-8 text-center text-stone-400">
               All caught up — nothing outstanding.
@@ -135,7 +135,7 @@ function Billing() {
 
         {/* Billed */}
         <div>
-          <h2 className="mb-3 font-serif text-lg font-semibold text-stone-700">Billed</h2>
+          <h2 className="mb-3 font-serif text-lg font-semibold text-stone-100">Billed</h2>
           {billedGroups.length === 0 ? (
             <div className="rounded-xl border border-dashed border-stone-300 bg-white/60 p-8 text-center text-stone-400">
               No invoiced orders waiting on payment.

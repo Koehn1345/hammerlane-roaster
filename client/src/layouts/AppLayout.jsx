@@ -38,7 +38,7 @@ function AppLayout() {
           )}
         </header>
 
-        <main className="flex-1 overflow-y-auto">
+        <main className="flex-1 overflow-y-auto bg-stone-800">
           <div className="px-4 py-6 md:px-8 md:py-8">
             <Outlet />
           </div>

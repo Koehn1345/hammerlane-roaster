@@ -27,7 +27,7 @@ function BlendDetail() {
   if (loading && !blend) return <p className="text-sm text-stone-400">Loading…</p>
   if (error || !blend) return (
     <div className="p-4">
-      <button onClick={() => navigate(-1)} className="text-sm text-stone-500 hover:text-stone-800">← Back</button>
+      <button onClick={() => navigate(-1)} className="text-sm text-stone-400 hover:text-white">← Back</button>
       <p className="mt-4 text-sm text-red-600">{error || 'Blend not found'}</p>
     </div>
   )
@@ -36,7 +36,7 @@ function BlendDetail() {
 
   return (
     <div className="mx-auto max-w-lg">
-      <button onClick={() => navigate(-1)} className="mb-4 inline-flex items-center gap-1 text-sm text-stone-500 hover:text-stone-800">
+      <button onClick={() => navigate(-1)} className="mb-4 inline-flex items-center gap-1 text-sm text-stone-400 hover:text-white">
         ← Back
       </button>
 

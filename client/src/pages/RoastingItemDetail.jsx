@@ -68,7 +68,7 @@ function RoastingItemDetail() {
   if (loading && !item) return <p className="p-6 text-sm text-stone-400">Loading…</p>
   if (error || !item) return (
     <div className="p-6">
-      <Link to="/roasting" className="text-sm text-stone-500 hover:text-stone-800">← Roasting</Link>
+      <Link to="/roasting" className="text-sm text-stone-400 hover:text-white">← Roasting</Link>
       <p className="mt-4 text-sm text-red-600">{error || 'Item not found'}</p>
     </div>
   )
@@ -77,7 +77,7 @@ function RoastingItemDetail() {
 
   return (
     <div className="mx-auto max-w-lg">
-      <Link to="/roasting" className="mb-4 inline-flex items-center gap-1 text-sm text-stone-500 hover:text-stone-800">
+      <Link to="/roasting" className="mb-4 inline-flex items-center gap-1 text-sm text-stone-400 hover:text-white">
         ← Roasting
       </Link>
 

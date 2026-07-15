@@ -30,7 +30,7 @@ const orderColumns = [
 function OrderSection({ title, rows, emptyMessage, onRowClick }) {
   return (
     <section className="mt-8">
-      <h2 className="mb-3 font-serif text-lg font-semibold text-stone-800">{title}</h2>
+      <h2 className="mb-3 font-serif text-lg font-semibold text-stone-100">{title}</h2>
       <DataTable columns={orderColumns} rows={rows} emptyMessage={emptyMessage} onRowClick={onRowClick} />
     </section>
   )
@@ -61,7 +61,7 @@ function CustomerDetail() {
     <div>
       <Link
         to="/customers"
-        className="mb-6 inline-flex items-center gap-1 text-sm text-stone-500 hover:text-stone-800"
+        className="mb-6 inline-flex items-center gap-1 text-sm text-stone-400 hover:text-white"
       >
         ← Customers
       </Link>
