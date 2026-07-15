@@ -67,28 +67,28 @@ function CustomerDetail() {
       </Link>
 
       {/* Customer info card */}
-      <div className="mt-4 rounded-xl border border-stone-200 bg-white p-6 shadow-sm">
-        <h1 className="font-serif text-2xl font-semibold text-stone-800">{customer?.name}</h1>
-        <div className="mt-3 flex flex-wrap gap-6 text-sm text-stone-600">
+      <div className="mt-4 rounded-xl border border-stone-600 bg-stone-500 p-6 shadow-sm">
+        <h1 className="font-serif text-2xl font-semibold text-white">{customer?.name}</h1>
+        <div className="mt-3 flex flex-wrap gap-6 text-sm text-stone-100">
           {customer?.phone && (
             <span>
-              <span className="font-medium text-stone-400 uppercase tracking-wide text-xs">Phone</span>
+              <span className="font-medium text-stone-300 uppercase tracking-wide text-xs">Phone</span>
               <br />
               {customer.phone}
             </span>
           )}
           {customer?.email && (
             <span>
-              <span className="font-medium text-stone-400 uppercase tracking-wide text-xs">Email</span>
+              <span className="font-medium text-stone-300 uppercase tracking-wide text-xs">Email</span>
               <br />
-              <a href={`mailto:${customer.email}`} className="hover:text-amber-800">
+              <a href={`mailto:${customer.email}`} className="hover:text-amber-300">
                 {customer.email}
               </a>
             </span>
           )}
           {customer?.notes && (
             <span>
-              <span className="font-medium text-stone-400 uppercase tracking-wide text-xs">Notes</span>
+              <span className="font-medium text-stone-300 uppercase tracking-wide text-xs">Notes</span>
               <br />
               {customer.notes}
             </span>

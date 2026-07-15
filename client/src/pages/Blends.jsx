@@ -21,7 +21,7 @@ const columns = [
     format: (v) => v
       ? <a href={v} target="_blank" rel="noreferrer"
           onClick={(e) => e.stopPropagation()}
-          className="text-blue-700 underline hover:text-blue-900">Link</a>
+          className="text-blue-300 underline hover:text-blue-200">Link</a>
       : <span className="text-stone-400">—</span>,
   },
   {
@@ -30,7 +30,7 @@ const columns = [
     format: (v) => v
       ? <a href={v} target="_blank" rel="noreferrer"
           onClick={(e) => e.stopPropagation()}
-          className="text-blue-700 underline hover:text-blue-900">PDF</a>
+          className="text-blue-300 underline hover:text-blue-200">PDF</a>
       : <span className="text-stone-400">—</span>,
   },
 ]
@@ -80,7 +80,7 @@ function Blends() {
           renderActions={(blend) => (
             <button
               onClick={(e) => { e.stopPropagation(); setModalMode(blend) }}
-              className="text-sm font-medium text-amber-800 hover:text-amber-900"
+              className="text-sm font-medium text-amber-300 hover:text-amber-200"
             >
               Edit
             </button>

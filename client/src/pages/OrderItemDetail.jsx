@@ -133,55 +133,55 @@ function OrderItemDetail() {
       </button>
 
       {/* Info card */}
-      <div className="mt-2 rounded-xl border border-stone-200 bg-white p-5 shadow-sm">
-        <h1 className="font-serif text-2xl font-semibold text-stone-800">{item.customer_name}</h1>
+      <div className="mt-2 rounded-xl border border-stone-600 bg-stone-500 p-5 shadow-sm">
+        <h1 className="font-serif text-2xl font-semibold text-white">{item.customer_name}</h1>
         <div className="mt-3 grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
           <div>
-            <p className="text-xs uppercase tracking-wide text-stone-400">Blend</p>
-            <p className="font-medium text-stone-800">{item.blend_name}</p>
+            <p className="text-xs uppercase tracking-wide text-stone-300">Blend</p>
+            <p className="font-medium text-white">{item.blend_name}</p>
           </div>
           <div>
-            <p className="text-xs uppercase tracking-wide text-stone-400">Grind</p>
-            <p className="font-medium capitalize text-stone-800">
+            <p className="text-xs uppercase tracking-wide text-stone-300">Grind</p>
+            <p className="font-medium capitalize text-white">
               {item.grind_type === 'ground' ? 'Ground' : 'Whole Bean'}
             </p>
           </div>
           <div>
-            <p className="text-xs uppercase tracking-wide text-stone-400">Size</p>
-            <p className="font-medium text-stone-800">{item.size_label?.trim() || `${item.bag_size_oz}oz`}</p>
+            <p className="text-xs uppercase tracking-wide text-stone-300">Size</p>
+            <p className="font-medium text-white">{item.size_label?.trim() || `${item.bag_size_oz}oz`}</p>
           </div>
           <div>
-            <p className="text-xs uppercase tracking-wide text-stone-400">Qty</p>
-            <p className="font-medium text-stone-800">{item.quantity}</p>
+            <p className="text-xs uppercase tracking-wide text-stone-300">Qty</p>
+            <p className="font-medium text-white">{item.quantity}</p>
           </div>
           <div>
-            <p className="text-xs uppercase tracking-wide text-stone-400">Weight</p>
-            <p className="font-medium text-stone-800">{lbs(item.weight)} lbs</p>
+            <p className="text-xs uppercase tracking-wide text-stone-300">Weight</p>
+            <p className="font-medium text-white">{lbs(item.weight)} lbs</p>
           </div>
           <div>
-            <p className="text-xs uppercase tracking-wide text-stone-400">Order Date</p>
-            <p className="font-medium text-stone-800">{formatDate(item.created_at)}</p>
+            <p className="text-xs uppercase tracking-wide text-stone-300">Order Date</p>
+            <p className="font-medium text-white">{formatDate(item.created_at)}</p>
           </div>
           <div>
-            <p className="text-xs uppercase tracking-wide text-stone-400">Revenue</p>
-            <p className="font-medium text-stone-800">{money(Number(item.sale_price_per_bag) * item.quantity)}</p>
+            <p className="text-xs uppercase tracking-wide text-stone-300">Revenue</p>
+            <p className="font-medium text-white">{money(Number(item.sale_price_per_bag) * item.quantity)}</p>
           </div>
           <div>
-            <p className="text-xs uppercase tracking-wide text-stone-400">Profit</p>
-            <p className="font-semibold text-green-700">{money(item.profit)}</p>
+            <p className="text-xs uppercase tracking-wide text-stone-300">Profit</p>
+            <p className="font-semibold text-green-400">{money(item.profit)}</p>
           </div>
           {Number(item.order_discount) > 0 && (
             <div>
-              <p className="text-xs uppercase tracking-wide text-stone-400">Order Discount</p>
-              <p className="font-medium text-stone-800">
+              <p className="text-xs uppercase tracking-wide text-stone-300">Order Discount</p>
+              <p className="font-medium text-white">
                 {item.order_discount_type === 'percent' ? `${Number(item.order_discount)}%` : money(item.order_discount)}
               </p>
             </div>
           )}
           {item.roast_date && (
             <div className="col-span-2">
-              <p className="text-xs uppercase tracking-wide text-stone-400">Roasted</p>
-              <p className="font-medium text-green-700">{formatDate(item.roast_date)}</p>
+              <p className="text-xs uppercase tracking-wide text-stone-300">Roasted</p>
+              <p className="font-medium text-green-400">{formatDate(item.roast_date)}</p>
             </div>
           )}
         </div>

@@ -69,19 +69,19 @@ function Roasting() {
 
       {/* Summary strip */}
       <div className="mb-6 flex flex-wrap items-stretch gap-3">
-        <div className="rounded-xl border border-stone-200 bg-white px-5 py-4 shadow-sm">
-          <p className="text-xs text-stone-400">Total Not Roasted</p>
-          <p className="font-serif text-3xl font-bold text-red-600">
-            {lbs(totalWeight)}<span className="ml-1 text-sm font-normal text-stone-400">lbs</span>
+        <div className="rounded-xl border border-stone-600 bg-stone-500 px-5 py-4 shadow-sm">
+          <p className="text-xs text-stone-300">Total Not Roasted</p>
+          <p className="font-serif text-3xl font-bold text-red-400">
+            {lbs(totalWeight)}<span className="ml-1 text-sm font-normal text-stone-300">lbs</span>
           </p>
         </div>
         {blendNames.map((name) => {
           const w = byBlend[name].reduce((s, i) => s + Number(i.weight || 0), 0)
           return (
-            <div key={name} className="rounded-xl border border-stone-200 bg-white px-5 py-4 shadow-sm">
-              <p className="text-xs text-stone-400">{name}</p>
-              <p className={`font-serif text-2xl font-semibold ${w > 0 ? 'text-amber-800' : 'text-stone-300'}`}>
-                {lbs(w)}<span className="ml-1 text-xs font-normal text-stone-400">lbs</span>
+            <div key={name} className="rounded-xl border border-stone-600 bg-stone-500 px-5 py-4 shadow-sm">
+              <p className="text-xs text-stone-300">{name}</p>
+              <p className={`font-serif text-2xl font-semibold ${w > 0 ? 'text-amber-300' : 'text-stone-400'}`}>
+                {lbs(w)}<span className="ml-1 text-xs font-normal text-stone-300">lbs</span>
               </p>
             </div>
           )
@@ -89,21 +89,21 @@ function Roasting() {
       </div>
 
       {items.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-stone-300 bg-white/60 p-10 text-center text-stone-400">
+        <div className="rounded-xl border border-dashed border-stone-400 bg-stone-500/60 p-10 text-center text-stone-200">
           Nothing waiting to be roasted.
         </div>
       ) : (
         <div className="space-y-4">
           {blendNames.map((blendName) => (
-            <div key={blendName} className="overflow-x-auto rounded-xl border border-stone-200 bg-white shadow-sm">
-              <div className="flex items-center gap-2 border-b border-stone-100 bg-stone-50 px-4 py-2.5">
-                <h3 className="font-serif text-base font-semibold text-stone-800">{blendName}</h3>
-                <span className="rounded-full bg-stone-200 px-2 py-0.5 text-xs font-medium text-stone-600">
+            <div key={blendName} className="overflow-x-auto rounded-xl border border-stone-600 bg-stone-500 shadow-sm">
+              <div className="flex items-center gap-2 border-b border-stone-600 bg-stone-600 px-4 py-2.5">
+                <h3 className="font-serif text-base font-semibold text-white">{blendName}</h3>
+                <span className="rounded-full bg-stone-700 px-2 py-0.5 text-xs font-medium text-stone-200">
                   {byBlend[blendName].length}
                 </span>
               </div>
               <table className="w-full text-left text-sm">
-                <thead className="text-xs uppercase tracking-wide text-stone-400">
+                <thead className="text-xs uppercase tracking-wide text-stone-300">
                   <tr>
                     <th className="px-3 py-2 font-medium w-px" />
                     <th className="px-3 py-2 font-medium">Customer</th>
@@ -117,11 +117,11 @@ function Roasting() {
                     <th className="px-3 py-2 font-medium">Roaster</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-stone-100">
+                <tbody className="divide-y divide-stone-600/60">
                   {byBlend[blendName].map((item) => (
                     <tr
                       key={item.id}
-                      className="cursor-pointer hover:bg-amber-50/40"
+                      className="cursor-pointer hover:bg-stone-400/40"
                       onClick={() => navigate(`/orders/items/${item.id}`)}
                     >
                       <td className="px-3 py-2.5" onClick={(e) => e.stopPropagation()}>
@@ -132,12 +132,12 @@ function Roasting() {
                           ✓ Roast
                         </button>
                       </td>
-                      <td className="px-3 py-2.5 font-medium text-stone-800 whitespace-nowrap">
+                      <td className="px-3 py-2.5 font-medium text-white whitespace-nowrap">
                         {item.customer_name}
                       </td>
-                      <td className="px-3 py-2.5 text-stone-600">{lbs(item.weight)}</td>
-                      <td className="px-3 py-2.5 text-stone-600">{item.quantity}</td>
-                      <td className="px-3 py-2.5 text-stone-600 whitespace-nowrap">
+                      <td className="px-3 py-2.5 text-stone-200">{lbs(item.weight)}</td>
+                      <td className="px-3 py-2.5 text-stone-200">{item.quantity}</td>
+                      <td className="px-3 py-2.5 text-stone-200 whitespace-nowrap">
                         {item.grind_type === 'ground' ? 'Ground' : 'Whole Bean'}
                       </td>
                       <td className="px-3 py-2.5 text-center" onClick={(e) => e.stopPropagation()}>
@@ -146,10 +146,10 @@ function Roasting() {
                       <td className="px-3 py-2.5 text-center" onClick={(e) => e.stopPropagation()}>
                         <Checkbox checked={item.labeled} onChange={(e) => patch(item.id, { labeled: !item.labeled }, e)} />
                       </td>
-                      <td className="px-3 py-2.5 text-stone-600 whitespace-nowrap">
+                      <td className="px-3 py-2.5 text-stone-200 whitespace-nowrap">
                         {money(Number(item.sale_price_per_bag) * item.quantity)}
                       </td>
-                      <td className="px-3 py-2.5 font-medium text-green-700 whitespace-nowrap">
+                      <td className="px-3 py-2.5 font-medium text-green-400 whitespace-nowrap">
                         {money(item.profit)}
                       </td>
                       <td className="px-3 py-2.5" onClick={(e) => e.stopPropagation()}>

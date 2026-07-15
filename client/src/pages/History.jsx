@@ -50,7 +50,7 @@ function History() {
       <PageHeader title="Roast History" description="All roasted orders grouped by week." />
 
       {weeks.length === 0 && (
-        <div className="rounded-xl border border-dashed border-stone-300 bg-white/60 p-10 text-center text-stone-400">
+        <div className="rounded-xl border border-dashed border-stone-400 bg-stone-500/60 p-10 text-center text-stone-200">
           No roasted orders yet.
         </div>
       )}
@@ -62,17 +62,17 @@ function History() {
           const totalProfit = items.reduce((s, r) => s + Number(r.profit || 0), 0)
 
           return (
-            <div key={key} className="overflow-x-auto rounded-xl border border-stone-200 bg-white shadow-sm">
+            <div key={key} className="overflow-x-auto rounded-xl border border-stone-600 bg-stone-500 shadow-sm">
               {/* Week header */}
-              <div className="flex items-center justify-between border-b border-stone-100 bg-stone-50 px-4 py-3">
-                <h2 className="font-bold text-stone-800">{weekLabel(key)}</h2>
-                <span className="text-xs text-stone-500">
+              <div className="flex items-center justify-between border-b border-stone-600 bg-stone-600 px-4 py-3">
+                <h2 className="font-bold text-white">{weekLabel(key)}</h2>
+                <span className="text-xs text-stone-300">
                   {items.length} {items.length === 1 ? 'roast' : 'roasts'}
                 </span>
               </div>
 
               <table className="w-full text-left text-sm">
-                <thead className="text-xs uppercase tracking-wide text-stone-400">
+                <thead className="text-xs uppercase tracking-wide text-stone-300">
                   <tr>
                     <th className="px-4 py-2 font-medium">Customer</th>
                     <th className="px-4 py-2 font-medium">Blend</th>
@@ -82,27 +82,27 @@ function History() {
                     <th className="px-4 py-2 font-medium">Profit</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-stone-50">
+                <tbody className="divide-y divide-stone-600/60">
                   {items.map((r) => (
-                    <tr key={r.id} className="hover:bg-stone-50">
-                      <td className="px-4 py-2.5 font-bold text-stone-800 whitespace-nowrap">{r.customer_name}</td>
-                      <td className="px-4 py-2.5 text-stone-700 whitespace-nowrap">{r.blend_name}</td>
-                      <td className="px-4 py-2.5 text-stone-700 capitalize whitespace-nowrap">
+                    <tr key={r.id} className="hover:bg-stone-400/40">
+                      <td className="px-4 py-2.5 font-bold text-white whitespace-nowrap">{r.customer_name}</td>
+                      <td className="px-4 py-2.5 text-stone-100 whitespace-nowrap">{r.blend_name}</td>
+                      <td className="px-4 py-2.5 text-stone-100 capitalize whitespace-nowrap">
                         {r.grind_type === 'ground' ? 'Ground' : 'Whole Bean'}
                       </td>
-                      <td className="px-4 py-2.5 text-stone-700 whitespace-nowrap">{lbs(r.weight)} lbs</td>
-                      <td className="px-4 py-2.5 text-stone-700 whitespace-nowrap">{money(r.cost)}</td>
-                      <td className="px-4 py-2.5 font-bold text-green-700 whitespace-nowrap">{money(r.profit)}</td>
+                      <td className="px-4 py-2.5 text-stone-100 whitespace-nowrap">{lbs(r.weight)} lbs</td>
+                      <td className="px-4 py-2.5 text-stone-100 whitespace-nowrap">{money(r.cost)}</td>
+                      <td className="px-4 py-2.5 font-bold text-green-400 whitespace-nowrap">{money(r.profit)}</td>
                     </tr>
                   ))}
                 </tbody>
                 {/* Week subtotal */}
                 <tfoot>
-                  <tr className="border-t-2 border-stone-200 bg-stone-50 font-bold">
-                    <td className="px-4 py-2.5 text-stone-500" colSpan={3}>Week Total</td>
-                    <td className="px-4 py-2.5 text-stone-800 whitespace-nowrap">{lbs(totalLbs)} lbs</td>
-                    <td className="px-4 py-2.5 text-stone-800 whitespace-nowrap">{money(totalCost)}</td>
-                    <td className="px-4 py-2.5 text-green-700 whitespace-nowrap">{money(totalProfit)}</td>
+                  <tr className="border-t-2 border-stone-600 bg-stone-600 font-bold">
+                    <td className="px-4 py-2.5 text-stone-300" colSpan={3}>Week Total</td>
+                    <td className="px-4 py-2.5 text-white whitespace-nowrap">{lbs(totalLbs)} lbs</td>
+                    <td className="px-4 py-2.5 text-white whitespace-nowrap">{money(totalCost)}</td>
+                    <td className="px-4 py-2.5 text-green-400 whitespace-nowrap">{money(totalProfit)}</td>
                   </tr>
                 </tfoot>
               </table>

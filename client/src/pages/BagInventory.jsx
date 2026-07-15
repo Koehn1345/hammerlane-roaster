@@ -57,7 +57,7 @@ function BagInventory() {
           renderActions={(bag) => (
             <button
               onClick={() => setModalMode(bag)}
-              className="text-sm font-medium text-amber-800 hover:text-amber-900"
+              className="text-sm font-medium text-amber-300 hover:text-amber-200"
             >
               Edit
             </button>

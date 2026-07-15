@@ -8,9 +8,9 @@ const money  = (v) => `$${Number(v || 0).toFixed(2)}`
 
 function StatCard({ label, value }) {
   return (
-    <div className="rounded-xl border border-stone-200 bg-white p-5 shadow-sm">
-      <p className="text-xs font-medium uppercase tracking-wide text-stone-400">{label}</p>
-      <p className="mt-2 font-serif text-2xl font-semibold text-stone-800">{value}</p>
+    <div className="rounded-xl border border-stone-600 bg-stone-500 p-5 shadow-sm">
+      <p className="text-xs font-medium uppercase tracking-wide text-stone-300">{label}</p>
+      <p className="mt-2 font-serif text-2xl font-semibold text-white">{value}</p>
     </div>
   )
 }
@@ -24,11 +24,11 @@ function InventoryList({ rows, valueKey, valueFormat, emptyMessage }) {
     return <p className="text-sm text-stone-400">{emptyMessage}</p>
   }
   return (
-    <div className="divide-y divide-stone-100">
+    <div className="divide-y divide-stone-600/60">
       {rows.map((row, i) => (
         <div key={i} className="flex items-center justify-between py-2.5 text-sm">
-          <span className="text-stone-700">{row.label}</span>
-          <span className="font-semibold text-amber-800">{valueFormat(row[valueKey])}</span>
+          <span className="text-stone-100">{row.label}</span>
+          <span className="font-semibold text-amber-300">{valueFormat(row[valueKey])}</span>
         </div>
       ))}
     </div>
@@ -89,7 +89,7 @@ function Dashboard() {
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <section>
           <SectionHeader title="Green Beans on Hand" />
-          <div className="rounded-xl border border-stone-200 bg-white px-5 py-3 shadow-sm">
+          <div className="rounded-xl border border-stone-600 bg-stone-500 px-5 py-3 shadow-sm">
             <InventoryList
               rows={beanRows}
               valueKey="lbs_remaining"
@@ -101,7 +101,7 @@ function Dashboard() {
 
         <section>
           <SectionHeader title="Bags in Stock" />
-          <div className="rounded-xl border border-stone-200 bg-white px-5 py-3 shadow-sm">
+          <div className="rounded-xl border border-stone-600 bg-stone-500 px-5 py-3 shadow-sm">
             <InventoryList
               rows={bagRows}
               valueKey="quantity_on_hand"

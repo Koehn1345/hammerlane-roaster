@@ -24,10 +24,10 @@ function groupByCustomer(orders, billingStatus) {
 
 function CustomerGroup({ group, actionLabel, actionColor, onAction, onItemClick }) {
   return (
-    <div className="mb-4 overflow-hidden rounded-xl border border-stone-200 bg-white shadow-sm">
-      <div className="flex items-center justify-between gap-3 border-b border-stone-100 bg-stone-50 px-4 py-2.5">
+    <div className="mb-4 overflow-hidden rounded-xl border border-stone-600 bg-stone-500 shadow-sm">
+      <div className="flex items-center justify-between gap-3 border-b border-stone-600 bg-stone-600 px-4 py-2.5">
         <div className="flex items-center gap-2 min-w-0">
-          <span className="font-medium text-stone-800 truncate">{group.customer_name}</span>
+          <span className="font-medium text-white truncate">{group.customer_name}</span>
           <span className="shrink-0 rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-800">
             {money(group.total)}
           </span>
@@ -40,20 +40,20 @@ function CustomerGroup({ group, actionLabel, actionColor, onAction, onItemClick 
         </button>
       </div>
       <table className="w-full text-left text-xs">
-        <tbody className="divide-y divide-stone-50">
+        <tbody className="divide-y divide-stone-600/60">
           {group.items.map((item, i) => (
             <tr
               key={i}
               onClick={() => onItemClick(item.id)}
-              className="cursor-pointer hover:bg-amber-50/50"
+              className="cursor-pointer hover:bg-stone-400/40"
             >
-              <td className="px-4 py-2 text-stone-400 whitespace-nowrap">{formatDate(item.roast_date)}</td>
-              <td className="px-4 py-2 font-medium text-stone-700 whitespace-nowrap">{item.blend_name}</td>
-              <td className="px-4 py-2 text-stone-500 capitalize whitespace-nowrap">
+              <td className="px-4 py-2 text-stone-300 whitespace-nowrap">{formatDate(item.roast_date)}</td>
+              <td className="px-4 py-2 font-medium text-stone-100 whitespace-nowrap">{item.blend_name}</td>
+              <td className="px-4 py-2 text-stone-300 capitalize whitespace-nowrap">
                 {item.grind_type === 'ground' ? 'Ground' : 'Whole Bean'}
               </td>
-              <td className="px-4 py-2 text-stone-500">{item.quantity}×</td>
-              <td className="px-4 py-2 text-right font-medium text-stone-700 whitespace-nowrap">
+              <td className="px-4 py-2 text-stone-300">{item.quantity}×</td>
+              <td className="px-4 py-2 text-right font-medium text-stone-100 whitespace-nowrap">
                 {money(Number(item.sale_price_per_bag || 0) * Number(item.quantity || 1))}
               </td>
             </tr>
@@ -96,7 +96,7 @@ function Billing() {
         <div>
           <h2 className="mb-3 font-serif text-lg font-semibold text-stone-100">Not Billed</h2>
           {notBilledGroups.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-stone-300 bg-white/60 p-8 text-center text-stone-400">
+            <div className="rounded-xl border border-dashed border-stone-400 bg-stone-500/60 p-8 text-center text-stone-200">
               All caught up — nothing outstanding.
             </div>
           ) : (
@@ -115,18 +115,18 @@ function Billing() {
 
         {/* Totals */}
         <div className="lg:pt-9">
-          <div className="rounded-xl border border-stone-200 bg-white p-5 shadow-sm space-y-5">
+          <div className="rounded-xl border border-stone-600 bg-stone-500 p-5 shadow-sm space-y-5">
             <div>
-              <p className="text-xs font-medium uppercase tracking-wide text-stone-400">Not Billed</p>
-              <p className="mt-1 font-serif text-2xl font-bold text-amber-700">{money(totalNotBilled)}</p>
+              <p className="text-xs font-medium uppercase tracking-wide text-stone-300">Not Billed</p>
+              <p className="mt-1 font-serif text-2xl font-bold text-amber-300">{money(totalNotBilled)}</p>
             </div>
-            <div className="border-t border-stone-100 pt-5">
-              <p className="text-xs font-medium uppercase tracking-wide text-stone-400">Billed</p>
-              <p className="mt-1 font-serif text-2xl font-bold text-blue-700">{money(totalBilled)}</p>
+            <div className="border-t border-stone-600 pt-5">
+              <p className="text-xs font-medium uppercase tracking-wide text-stone-300">Billed</p>
+              <p className="mt-1 font-serif text-2xl font-bold text-blue-300">{money(totalBilled)}</p>
             </div>
-            <div className="border-t border-stone-100 pt-5">
-              <p className="text-xs font-medium uppercase tracking-wide text-stone-400">Combined</p>
-              <p className="mt-1 font-serif text-xl font-semibold text-stone-700">
+            <div className="border-t border-stone-600 pt-5">
+              <p className="text-xs font-medium uppercase tracking-wide text-stone-300">Combined</p>
+              <p className="mt-1 font-serif text-xl font-semibold text-white">
                 {money(totalNotBilled + totalBilled)}
               </p>
             </div>
@@ -137,7 +137,7 @@ function Billing() {
         <div>
           <h2 className="mb-3 font-serif text-lg font-semibold text-stone-100">Billed</h2>
           {billedGroups.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-stone-300 bg-white/60 p-8 text-center text-stone-400">
+            <div className="rounded-xl border border-dashed border-stone-400 bg-stone-500/60 p-8 text-center text-stone-200">
               No invoiced orders waiting on payment.
             </div>
           ) : (

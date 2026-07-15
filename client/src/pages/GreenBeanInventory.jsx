@@ -55,7 +55,7 @@ function GreenBeanInventory() {
           renderActions={(bean) => (
             <button
               onClick={() => setModalMode(bean)}
-              className="text-sm font-medium text-amber-800 hover:text-amber-900"
+              className="text-sm font-medium text-amber-300 hover:text-amber-200"
             >
               Edit
             </button>
