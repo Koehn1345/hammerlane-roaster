@@ -67,7 +67,8 @@ async function sendOrderSms(orderId) {
     : [];
 
   const bodyParts = [
-    `Hi, your order is ready to pick up at your normal location or will be shipped ☕`,
+    `Hi, your order is ready to pick up at your normal location or will be shipped ☕ ☕`,
+    ``,
     itemLines,
     `* Payment Status: ${billingText}`,
   ];
@@ -75,7 +76,7 @@ async function sendOrderSms(orderId) {
     bodyParts.push(`* Click on the line below to pay:`);
     bodyParts.push(paylinks.join('\n'));
   }
-  bodyParts.push(``, `Thanks!`, `Hammerlane Coffee - Roastic`);
+  bodyParts.push(``, `Thanks!`, `☕ ☕ Hammerlane Coffee ☕ ☕`);
 
   const body = bodyParts.join('\n');
 
