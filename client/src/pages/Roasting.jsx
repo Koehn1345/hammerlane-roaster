@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import PageHeader from '../components/PageHeader'
 import { useFetch } from '../hooks/useFetch'
@@ -37,6 +38,7 @@ function RoasterButton({ label, active, onClick }) {
 function Roasting() {
   const navigate = useNavigate()
   const { data: items, loading, error, refetch } = useFetch('/orders/roasting-list')
+  const [selected, setSelected] = useState(new Set())
 
   const patch = async (id, fields, e) => {
     e?.stopPropagation()
@@ -44,6 +46,25 @@ function Roasting() {
     await api.patch(`/orders/items/${id}`, fields)
     refetch()
     requestAnimationFrame(() => window.scrollTo(0, scrollY))  // restore after render
+  }
+
+  const toggleSelect = (id, e) => {
+    e.stopPropagation()
+    setSelected((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
+  const bulkPatch = async (fields) => {
+    const ids = [...selected]
+    const scrollY = window.scrollY
+    await Promise.all(ids.map((id) => api.patch(`/orders/items/${id}`, fields)))
+    setSelected(new Set())
+    refetch()
+    requestAnimationFrame(() => window.scrollTo(0, scrollY))
   }
 
   if (loading && !items) return <p className="text-sm text-stone-400">Loading roast list…</p>
@@ -88,13 +109,51 @@ function Roasting() {
         })}
       </div>
 
+      {selected.size > 0 && (
+        <div className="mb-4 flex flex-wrap items-center gap-3 rounded-xl border border-stone-600 bg-stone-600 px-4 py-2.5">
+          <span className="text-sm font-medium text-white">{selected.size} selected</span>
+          <button
+            onClick={() => bulkPatch({ status: 'roasted', local_date: localToday() })}
+            className="rounded-lg bg-green-700 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-green-800"
+          >
+            ✓ Mark Roasted
+          </button>
+          <button
+            onClick={() => bulkPatch({ weighed: true })}
+            className="rounded-lg bg-amber-800 px-3 py-1.5 text-xs font-semibold text-amber-50 shadow-sm transition-colors hover:bg-amber-900"
+          >
+            Mark Weighed
+          </button>
+          <button
+            onClick={() => bulkPatch({ labeled: true })}
+            className="rounded-lg bg-amber-800 px-3 py-1.5 text-xs font-semibold text-amber-50 shadow-sm transition-colors hover:bg-amber-900"
+          >
+            Mark Label
+          </button>
+          <button onClick={() => setSelected(new Set())} className="text-xs font-medium text-stone-300 hover:text-white">
+            Clear
+          </button>
+        </div>
+      )}
+
       {items.length === 0 ? (
         <div className="rounded-xl border border-dashed border-stone-400 bg-stone-500/60 p-10 text-center text-stone-200">
           Nothing waiting to be roasted.
         </div>
       ) : (
         <div className="space-y-4">
-          {blendNames.map((blendName) => (
+          {blendNames.map((blendName) => {
+            const groupItems = byBlend[blendName]
+            const groupAllSelected = groupItems.every((i) => selected.has(i.id))
+            const toggleGroupSelectAll = () => {
+              setSelected((prev) => {
+                const next = new Set(prev)
+                if (groupAllSelected) groupItems.forEach((i) => next.delete(i.id))
+                else groupItems.forEach((i) => next.add(i.id))
+                return next
+              })
+            }
+            return (
             <div key={blendName} className="overflow-x-auto rounded-xl border border-stone-600 bg-stone-500 shadow-sm">
               <div className="flex items-center gap-2 border-b border-stone-600 bg-stone-600 px-4 py-2.5">
                 <h3 className="font-serif text-base font-semibold text-white">{blendName}</h3>
@@ -105,6 +164,9 @@ function Roasting() {
               <table className="w-full text-left text-sm">
                 <thead className="text-xs uppercase tracking-wide text-stone-300">
                   <tr>
+                    <th className="px-3 py-2 font-medium w-px">
+                      <Checkbox checked={groupAllSelected} onChange={toggleGroupSelectAll} />
+                    </th>
                     <th className="px-3 py-2 font-medium w-px" />
                     <th className="px-3 py-2 font-medium">Customer</th>
                     <th className="px-3 py-2 font-medium">Wt (lbs)</th>
@@ -124,6 +186,9 @@ function Roasting() {
                       className="cursor-pointer hover:bg-stone-400/40"
                       onClick={() => navigate(`/orders/items/${item.id}`)}
                     >
+                      <td className="px-3 py-2.5" onClick={(e) => e.stopPropagation()}>
+                        <Checkbox checked={selected.has(item.id)} onChange={(e) => toggleSelect(item.id, e)} />
+                      </td>
                       <td className="px-3 py-2.5" onClick={(e) => e.stopPropagation()}>
                         <button
                           onClick={(e) => patch(item.id, { status: 'roasted', local_date: localToday() }, e)}
@@ -171,7 +236,8 @@ function Roasting() {
                 </tbody>
               </table>
             </div>
-          ))}
+            )
+          })}
         </div>
       )}
     </div>
