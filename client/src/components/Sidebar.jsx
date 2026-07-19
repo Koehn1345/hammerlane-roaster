@@ -22,10 +22,10 @@ function NavItems({ onNavClick }) {
           end={item.end}
           onClick={onNavClick}
           className={({ isActive }) =>
-            `rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
+            `rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors ${
               isActive
                 ? 'bg-amber-800 text-amber-50 shadow-sm'
-                : 'text-stone-200 hover:bg-stone-600/70 hover:text-white'
+                : 'text-white hover:bg-stone-600/70 hover:text-white'
             }`
           }
         >
