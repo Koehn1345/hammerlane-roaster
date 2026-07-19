@@ -6,11 +6,14 @@ import GreenBeanForm from '../components/GreenBeanForm'
 import { useFetch } from '../hooks/useFetch'
 import { formatDate } from '../utils/format'
 
+const money = (v) => v != null ? `$${Number(v).toFixed(2)}` : '—'
+
 const columns = [
   { key: 'origin', label: 'Origin' },
   { key: 'supplier', label: 'Supplier' },
   { key: 'lbs_remaining', label: 'Lbs Remaining' },
-  { key: 'cost_per_lb', label: 'Cost / Lb' },
+  { key: 'total_cost', label: 'Total Cost', format: money },
+  { key: 'cost_per_lb', label: 'Cost / Lb', format: money },
   { key: 'date_received', label: 'Date Received', format: formatDate },
 ]
 

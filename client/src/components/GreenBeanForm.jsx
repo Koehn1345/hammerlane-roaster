@@ -2,9 +2,10 @@ import { useState } from 'react'
 import api from '../api/client'
 import { nullifyEmpty } from '../utils/nullifyEmpty'
 
-const emptyForm = { origin: '', supplier: '', lbs_purchased: '', cost_per_lb: '', date_received: '' }
+const emptyForm = { origin: '', supplier: '', lbs_purchased: '', total_cost: '', date_received: '' }
 
 const inputCls = 'mt-1 w-full rounded-lg border border-stone-300 px-3 py-2 text-sm focus:border-amber-700 focus:outline-none focus:ring-1 focus:ring-amber-700'
+const inputClsReadOnly = 'mt-1 w-full rounded-lg border border-stone-300 bg-stone-100 px-3 py-2 text-sm text-stone-500'
 
 function unique(arr) {
   return [...new Set(arr.filter(Boolean))].sort()
@@ -16,7 +17,7 @@ function GreenBeanForm({ bean, allBeans = [], onSaved, onCancel }) {
       ? {
           origin: bean.origin || '',
           supplier: bean.supplier || '',
-          cost_per_lb: bean.cost_per_lb || '',
+          total_cost: bean.total_cost || '',
           lbs_remaining: bean.lbs_remaining || '',
           date_received: bean.date_received ? bean.date_received.slice(0, 10) : '',
         }
@@ -27,6 +28,11 @@ function GreenBeanForm({ bean, allBeans = [], onSaved, onCancel }) {
 
   const origins = unique(allBeans.map((b) => b.origin))
   const suppliers = unique(allBeans.map((b) => b.supplier))
+
+  // Lbs purchased is fixed at creation and isn't editable afterward — use the
+  // saved shipment's value on edit, or the field the user is currently typing on create.
+  const lbsPurchased = Number(bean ? bean.lbs_purchased : form.lbs_purchased) || 0
+  const costPerLb = lbsPurchased > 0 ? (Number(form.total_cost) || 0) / lbsPurchased : 0
 
   const handleChange = (field) => (e) => setForm({ ...form, [field]: e.target.value })
 
@@ -108,15 +114,21 @@ function GreenBeanForm({ bean, allBeans = [], onSaved, onCancel }) {
       )}
 
       <div>
-        <label className="block text-sm font-medium text-stone-700">Cost / Lb</label>
+        <label className="block text-sm font-medium text-stone-700">Total Cost</label>
         <input
           type="number"
           step="0.01"
           min="0"
-          value={form.cost_per_lb}
-          onChange={handleChange('cost_per_lb')}
+          required
+          value={form.total_cost}
+          onChange={handleChange('total_cost')}
           className={inputCls}
         />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-stone-700">Cost / Lb</label>
+        <input type="text" readOnly disabled value={lbsPurchased > 0 ? `$${costPerLb.toFixed(2)}` : '—'} className={inputClsReadOnly} />
       </div>
 
       <div>

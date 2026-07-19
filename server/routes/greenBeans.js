@@ -12,15 +12,17 @@ router.get('/', async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
-  const { origin, supplier, lbs_purchased, cost_per_lb, date_received } = req.body;
+  const { origin, supplier, lbs_purchased, total_cost, date_received } = req.body;
+  const lbs = Number(lbs_purchased) || 0;
+  const costPerLb = lbs > 0 ? (Number(total_cost) || 0) / lbs : 0;
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
 
     const result = await client.query(
-      `INSERT INTO green_beans (origin, supplier, lbs_purchased, cost_per_lb, lbs_remaining, date_received)
-       VALUES ($1, $2, $3, $4, $3, $5) RETURNING *`,
-      [origin, supplier, lbs_purchased, cost_per_lb, date_received]
+      `INSERT INTO green_beans (origin, supplier, lbs_purchased, total_cost, cost_per_lb, lbs_remaining, date_received)
+       VALUES ($1, $2, $3, $4, $5, $3, $6) RETURNING *`,
+      [origin, supplier, lbs_purchased, total_cost, costPerLb.toFixed(2), date_received]
     );
     const newBean = result.rows[0];
 
@@ -47,11 +49,15 @@ router.post('/', async (req, res) => {
 });
 
 router.patch('/:id', async (req, res) => {
-  const { origin, supplier, cost_per_lb, lbs_remaining, date_received } = req.body;
+  const { origin, supplier, total_cost, lbs_remaining, date_received } = req.body;
   try {
+    const existing = await pool.query('SELECT lbs_purchased FROM green_beans WHERE id = $1', [req.params.id]);
+    const lbs = Number(existing.rows[0]?.lbs_purchased) || 0;
+    const costPerLb = lbs > 0 ? (Number(total_cost) || 0) / lbs : 0;
+
     const result = await pool.query(
-      `UPDATE green_beans SET origin = $1, supplier = $2, cost_per_lb = $3, lbs_remaining = $4, date_received = $5 WHERE id = $6 RETURNING *`,
-      [origin, supplier, cost_per_lb, lbs_remaining, date_received, req.params.id]
+      `UPDATE green_beans SET origin = $1, supplier = $2, total_cost = $3, cost_per_lb = $4, lbs_remaining = $5, date_received = $6 WHERE id = $7 RETURNING *`,
+      [origin, supplier, total_cost, costPerLb.toFixed(2), lbs_remaining, date_received, req.params.id]
     );
     res.json(result.rows[0]);
   } catch (err) {

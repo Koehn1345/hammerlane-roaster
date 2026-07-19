@@ -12,6 +12,7 @@ CREATE TABLE green_beans (
   origin VARCHAR(255) NOT NULL,
   supplier VARCHAR(255),
   lbs_purchased DECIMAL(10,2),
+  total_cost DECIMAL(10,2),
   cost_per_lb DECIMAL(10,2),
   lbs_remaining DECIMAL(10,2),
   date_received DATE,
