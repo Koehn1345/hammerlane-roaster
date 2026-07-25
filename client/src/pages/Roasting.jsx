@@ -169,7 +169,7 @@ function Roasting() {
                     </th>
                     <th className="px-3 py-2 font-medium w-px" />
                     <th className="px-3 py-2 font-medium">Customer</th>
-                    <th className="px-3 py-2 font-medium">Wt (lbs)</th>
+                    <th className="px-3 py-2 font-medium">Bag Size</th>
                     <th className="px-3 py-2 font-medium">Qty</th>
                     <th className="px-3 py-2 font-medium">Type</th>
                     <th className="px-3 py-2 font-medium text-center">Weighed</th>
@@ -200,7 +200,9 @@ function Roasting() {
                       <td className="px-3 py-2.5 font-medium text-white whitespace-nowrap">
                         {item.customer_name}
                       </td>
-                      <td className="px-3 py-2.5 text-stone-200">{lbs(item.weight)}</td>
+                      <td className="px-3 py-2.5 text-stone-200 whitespace-nowrap">
+                        {item.size_label?.trim() || `${item.bag_size_oz}oz`}
+                      </td>
                       <td className="px-3 py-2.5 text-stone-200">{item.quantity}</td>
                       <td className="px-3 py-2.5 text-stone-200 whitespace-nowrap">
                         {item.grind_type === 'ground' ? 'Ground' : 'Whole Bean'}

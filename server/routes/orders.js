@@ -143,7 +143,7 @@ router.get('/roasting-list', async (req, res) => {
   try {
     const result = await pool.query(`
       SELECT order_items.*, blends.name AS blend_name, customers.name AS customer_name,
-             bag_inventory.size_lbs
+             bag_inventory.size_lbs, bag_inventory.size_label
       FROM order_items
       JOIN orders     ON order_items.order_id   = orders.id
       JOIN customers  ON orders.customer_id     = customers.id
