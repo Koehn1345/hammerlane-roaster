@@ -111,7 +111,7 @@ function Roasting() {
         action={
           <button
             onClick={downloadPdf}
-            className="rounded-lg bg-stone-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-stone-700"
+            className="mr-12 rounded-lg bg-stone-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-stone-700"
           >
             Download PDF
           </button>
