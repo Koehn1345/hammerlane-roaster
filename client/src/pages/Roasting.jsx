@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import jsPDF from 'jspdf'
+import autoTable from 'jspdf-autotable'
 import PageHeader from '../components/PageHeader'
 import { useFetch } from '../hooks/useFetch'
 import api from '../api/client'
@@ -67,6 +69,23 @@ function Roasting() {
     requestAnimationFrame(() => window.scrollTo(0, scrollY))
   }
 
+  const downloadPdf = () => {
+    const doc = new jsPDF()
+    doc.text('Processed Orders', 14, 15)
+    autoTable(doc, {
+      startY: 20,
+      head: [['Customer', 'Blend', 'Bag Size', 'QTY', 'Type']],
+      body: (items ?? []).map((item) => [
+        item.customer_name,
+        item.blend_name,
+        item.size_label?.trim() || `${item.bag_size_oz}oz`,
+        item.quantity,
+        item.grind_type === 'ground' ? 'Ground' : 'Whole Bean',
+      ]),
+    })
+    doc.save(`processed-orders-${new Date().toISOString().slice(0, 10)}.pdf`)
+  }
+
   if (loading && !items) return <p className="text-sm text-stone-400">Loading roast list…</p>
   if (error) {
     return (
@@ -86,7 +105,18 @@ function Roasting() {
 
   return (
     <div>
-      <PageHeader title="Roasting" description="Beans waiting to be roasted, grouped by blend." />
+      <PageHeader
+        title="Roasting"
+        description="Beans waiting to be roasted, grouped by blend."
+        action={
+          <button
+            onClick={downloadPdf}
+            className="rounded-lg bg-stone-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-stone-700"
+          >
+            Download PDF
+          </button>
+        }
+      />
 
       {/* Summary strip */}
       <div className="mb-6 flex flex-wrap items-stretch gap-3">
