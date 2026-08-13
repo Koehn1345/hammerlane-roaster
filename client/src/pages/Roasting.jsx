@@ -103,6 +103,12 @@ function Roasting() {
   }
   const blendNames = Object.keys(byBlend).sort()
 
+  const notWeighedItems = (items ?? []).filter((i) => !i.weighed)
+  const notWeighedByBlend = {}
+  for (const item of notWeighedItems) {
+    notWeighedByBlend[item.blend_name] = (notWeighedByBlend[item.blend_name] ?? 0) + 1
+  }
+
   return (
     <div>
       <PageHeader
@@ -133,6 +139,27 @@ function Roasting() {
               <p className="text-xs text-stone-300">{name}</p>
               <p className={`font-serif text-2xl font-semibold ${w > 0 ? 'text-amber-300' : 'text-stone-400'}`}>
                 {lbs(w)}<span className="ml-1 text-xs font-normal text-stone-300">lbs</span>
+              </p>
+            </div>
+          )
+        })}
+      </div>
+
+      {/* Not weighed strip */}
+      <div className="mb-6 flex flex-wrap items-stretch gap-2">
+        <div className="rounded-lg border border-stone-600 bg-stone-500 px-3 py-2 shadow-sm">
+          <p className="text-[10px] text-stone-300">Total Not Weighed</p>
+          <p className="font-serif text-lg font-bold text-red-400">
+            {notWeighedItems.length}
+          </p>
+        </div>
+        {blendNames.map((name) => {
+          const c = notWeighedByBlend[name] ?? 0
+          return (
+            <div key={name} className="rounded-lg border border-stone-600 bg-stone-500 px-3 py-2 shadow-sm">
+              <p className="text-[10px] text-stone-300">{name}</p>
+              <p className={`font-serif text-base font-semibold ${c > 0 ? 'text-amber-300' : 'text-stone-400'}`}>
+                {c}
               </p>
             </div>
           )

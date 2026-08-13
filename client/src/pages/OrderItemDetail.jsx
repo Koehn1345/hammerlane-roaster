@@ -107,7 +107,7 @@ function OrderItemDetail() {
         })),
       })
       const newItemId = res.data.items[0]?.id
-      navigate(`/orders/items/${newItemId}`, { state: { openEdit: true } })
+      navigate(`/orders/items/${newItemId}`, { state: { openEdit: true, duplicatedOrder: res.data } })
     } finally {
       setDuplicating(false)
     }
@@ -121,7 +121,9 @@ function OrderItemDetail() {
     </div>
   )
 
-  const parentOrder = orders?.find((o) => o.id === item.order_id)
+  const parentOrder = location.state?.duplicatedOrder?.id === item.order_id
+    ? location.state.duplicatedOrder
+    : orders?.find((o) => o.id === item.order_id)
 
   return (
     <div className="mx-auto max-w-lg">
