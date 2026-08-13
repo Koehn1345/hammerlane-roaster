@@ -155,10 +155,11 @@ function Roasting() {
         </div>
         {blendNames.map((name) => {
           const c = notWeighedByBlend[name] ?? 0
+          if (c === 0) return null
           return (
             <div key={name} className="rounded-lg border border-stone-600 bg-stone-500 px-3 py-2 shadow-sm">
               <p className="text-[10px] text-stone-300">{name}</p>
-              <p className={`font-serif text-base font-semibold ${c > 0 ? 'text-amber-300' : 'text-stone-400'}`}>
+              <p className="font-serif text-base font-semibold text-amber-300">
                 {c}
               </p>
             </div>
