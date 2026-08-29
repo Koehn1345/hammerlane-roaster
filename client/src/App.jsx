@@ -12,6 +12,7 @@ import CustomerDetail from './pages/CustomerDetail'
 import Blends from './pages/Blends'
 import BlendDetail from './pages/BlendDetail'
 import GreenBeanInventory from './pages/GreenBeanInventory'
+import GreenBeanDetail from './pages/GreenBeanDetail'
 import BagInventory from './pages/BagInventory'
 
 function App() {
@@ -30,6 +31,7 @@ function App() {
         <Route path="blends" element={<Blends />} />
         <Route path="blends/:id" element={<BlendDetail />} />
         <Route path="green-beans" element={<GreenBeanInventory />} />
+        <Route path="green-beans/:id" element={<GreenBeanDetail />} />
         <Route path="bags" element={<BagInventory />} />
       </Route>
     </Routes>

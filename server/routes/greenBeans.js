@@ -11,6 +11,29 @@ router.get('/', async (req, res) => {
   }
 });
 
+router.get('/:id', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM green_beans WHERE id = $1', [req.params.id]);
+    if (!result.rows.length) return res.status(404).json({ error: 'Not found' });
+    res.json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Every shipment ever logged against this origin, newest first.
+router.get('/:id/shipments', async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT * FROM green_bean_shipments WHERE green_bean_id = $1 ORDER BY date_received DESC NULLS LAST, created_at DESC`,
+      [req.params.id]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Merges the new supplier into the existing comma-separated list, skipping
 // case-insensitive duplicates so re-ordering from the same supplier doesn't pile up.
 function mergeSupplierList(existing, incoming) {
@@ -33,11 +56,14 @@ router.post('/', async (req, res) => {
       [origin]
     );
 
+    const shipmentLbs = Number(lbs_purchased) || 0;
+    const shipmentCostPerLb = shipmentLbs > 0 ? (Number(total_cost) || 0) / shipmentLbs : 0;
+
     let bean;
     if (existing.rows.length) {
       const row = existing.rows[0];
-      const lbsPurchased = Number(row.lbs_purchased || 0) + (Number(lbs_purchased) || 0);
-      const lbsRemaining = Number(row.lbs_remaining || 0) + (Number(lbs_purchased) || 0);
+      const lbsPurchased = Number(row.lbs_purchased || 0) + shipmentLbs;
+      const lbsRemaining = Number(row.lbs_remaining || 0) + shipmentLbs;
       const totalCost = Number(row.total_cost || 0) + (Number(total_cost) || 0);
       const costPerLb = lbsPurchased > 0 ? totalCost / lbsPurchased : 0;
 
@@ -50,15 +76,19 @@ router.post('/', async (req, res) => {
       );
       bean = result.rows[0];
     } else {
-      const lbs = Number(lbs_purchased) || 0;
-      const costPerLb = lbs > 0 ? (Number(total_cost) || 0) / lbs : 0;
       const result = await client.query(
         `INSERT INTO green_beans (origin, supplier, lbs_purchased, total_cost, cost_per_lb, lbs_remaining, date_received)
          VALUES ($1, $2, $3, $4, $5, $3, $6) RETURNING *`,
-        [origin, supplier, lbs_purchased, total_cost, costPerLb.toFixed(2), date_received]
+        [origin, supplier, lbs_purchased, total_cost, shipmentCostPerLb.toFixed(2), date_received]
       );
       bean = result.rows[0];
     }
+
+    await client.query(
+      `INSERT INTO green_bean_shipments (green_bean_id, supplier, lbs_purchased, total_cost, cost_per_lb, date_received)
+       VALUES ($1, $2, $3, $4, $5, $6)`,
+      [bean.id, supplier, lbs_purchased, total_cost, shipmentCostPerLb.toFixed(2), date_received]
+    );
 
     await client.query('COMMIT');
     res.json(bean);

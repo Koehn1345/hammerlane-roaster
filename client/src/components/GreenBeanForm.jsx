@@ -11,7 +11,7 @@ function unique(arr) {
   return [...new Set(arr.filter(Boolean))].sort()
 }
 
-function GreenBeanForm({ bean, allBeans = [], onSaved, onCancel }) {
+function GreenBeanForm({ bean, allBeans = [], initialOrigin, onSaved, onCancel }) {
   const [form, setForm] = useState(
     bean
       ? {
@@ -21,7 +21,7 @@ function GreenBeanForm({ bean, allBeans = [], onSaved, onCancel }) {
           lbs_remaining: bean.lbs_remaining || '',
           date_received: bean.date_received ? bean.date_received.slice(0, 10) : '',
         }
-      : emptyForm
+      : { ...emptyForm, origin: initialOrigin || '' }
   )
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState(null)

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import PageHeader from '../components/PageHeader'
 import DataTable from '../components/DataTable'
 import Modal from '../components/Modal'
@@ -18,6 +19,7 @@ const columns = [
 ]
 
 function GreenBeanInventory() {
+  const navigate = useNavigate()
   const { data: beans, loading, error, refetch } = useFetch('/green-beans')
   const [modalMode, setModalMode] = useState(null)
 
@@ -55,10 +57,10 @@ function GreenBeanInventory() {
           columns={columns}
           rows={beans}
           emptyMessage="No green bean stock recorded yet."
-          onRowClick={(bean) => setModalMode(bean)}
+          onRowClick={(bean) => navigate(`/green-beans/${bean.id}`)}
           renderActions={(bean) => (
             <button
-              onClick={() => setModalMode(bean)}
+              onClick={(e) => { e.stopPropagation(); setModalMode(bean) }}
               className="text-sm font-medium text-amber-300 hover:text-amber-200"
             >
               Edit
