@@ -29,6 +29,10 @@ function GreenBeanForm({ bean, allBeans = [], onSaved, onCancel }) {
   const origins = unique(allBeans.map((b) => b.origin))
   const suppliers = unique(allBeans.map((b) => b.supplier))
 
+  const matchingBean = !bean
+    ? allBeans.find((b) => b.origin?.trim().toLowerCase() === form.origin.trim().toLowerCase())
+    : null
+
   // Lbs purchased is fixed at creation and isn't editable afterward — use the
   // saved shipment's value on edit, or the field the user is currently typing on create.
   const lbsPurchased = Number(bean ? bean.lbs_purchased : form.lbs_purchased) || 0
@@ -69,6 +73,11 @@ function GreenBeanForm({ bean, allBeans = [], onSaved, onCancel }) {
         <datalist id="origins-list">
           {origins.map((o) => <option key={o} value={o} />)}
         </datalist>
+        {matchingBean && (
+          <p className="mt-1 text-xs text-amber-700">
+            Adding to existing {matchingBean.origin} stock (currently {Number(matchingBean.lbs_remaining || 0).toFixed(2)} lbs)
+          </p>
+        )}
       </div>
 
       <div>

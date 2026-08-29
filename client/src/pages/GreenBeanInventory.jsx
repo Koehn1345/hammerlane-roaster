@@ -55,6 +55,7 @@ function GreenBeanInventory() {
           columns={columns}
           rows={beans}
           emptyMessage="No green bean stock recorded yet."
+          onRowClick={(bean) => setModalMode(bean)}
           renderActions={(bean) => (
             <button
               onClick={() => setModalMode(bean)}

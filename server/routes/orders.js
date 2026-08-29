@@ -70,6 +70,35 @@ async function computeItemCosts({ blend_id, bag_size_oz, quantity, sale_price_pe
   };
 }
 
+// Returns the lbs of each blend component (green bean origin) an order item consumes.
+// Same math as computeItemCosts, just in pounds per origin instead of dollars.
+async function computeComponentLbs({ blend_id, bag_size_oz, quantity }, dbClient = pool) {
+  const componentsResult = await dbClient.query(
+    `SELECT green_bean_id, percentage FROM blend_components WHERE blend_id = $1`,
+    [blend_id]
+  );
+  const bagResult = await dbClient.query(
+    `SELECT size_lbs FROM bag_inventory WHERE size_oz = $1 LIMIT 1`,
+    [bag_size_oz]
+  );
+  const quantityLbs = (Number(bagResult.rows[0]?.size_lbs) || 0) * (Number(quantity) || 0);
+  return componentsResult.rows.map((c) => ({
+    green_bean_id: c.green_bean_id,
+    lbs: quantityLbs * (Number(c.percentage) / 100),
+  }));
+}
+
+// sign = -1 to consume (roasting), +1 to restore (un-roasting / deleting a roasted item)
+async function applyInventoryDelta(componentLbs, sign, dbClient) {
+  for (const { green_bean_id, lbs } of componentLbs) {
+    if (!green_bean_id || !lbs) continue;
+    await dbClient.query(
+      `UPDATE green_beans SET lbs_remaining = lbs_remaining + $1 WHERE id = $2`,
+      [sign * lbs, green_bean_id]
+    );
+  }
+}
+
 // Spreads an order's discount (flat $ or %) across its line items, weighted by each item's
 // share of the order's total revenue, and updates each item's stored profit to match.
 // Must be re-run any time an order's discount or its items (price/qty/added/removed) change.
@@ -241,11 +270,28 @@ router.patch('/:id', async (req, res) => {
 });
 
 router.delete('/:id', async (req, res) => {
+  const client = await pool.connect();
   try {
-    await pool.query('DELETE FROM orders WHERE id = $1', [req.params.id]);
+    await client.query('BEGIN');
+
+    const roastedItems = await client.query(
+      `SELECT * FROM order_items WHERE order_id = $1 AND status = 'roasted'`,
+      [req.params.id]
+    );
+    for (const item of roastedItems.rows) {
+      const lbs = await computeComponentLbs(item, client);
+      await applyInventoryDelta(lbs, 1, client);
+    }
+
+    await client.query('DELETE FROM orders WHERE id = $1', [req.params.id]);
+
+    await client.query('COMMIT');
     res.json({ ok: true });
   } catch (err) {
+    await client.query('ROLLBACK');
     res.status(500).json({ error: err.message });
+  } finally {
+    client.release();
   }
 });
 
@@ -322,31 +368,57 @@ router.patch('/items/:itemId', async (req, res) => {
   }
 
   const recomputeTriggers = ['blend_id', 'bag_size_oz', 'quantity', 'sale_price_per_bag'];
-  if (recomputeTriggers.some((key) => key in fields)) {
-    const current = await pool.query('SELECT * FROM order_items WHERE id = $1', [req.params.itemId]);
-    const merged = { ...current.rows[0], ...fields };
-    const costs = await computeItemCosts(merged);
-    sets.push(`cost_beans = $${i++}`); values.push(costs.cost_beans);
-    sets.push(`cost_bags = $${i++}`);  values.push(costs.cost_bags);
-    sets.push(`profit = $${i++}`);     values.push(costs.profit);
-  }
+  const recompute = recomputeTriggers.some((key) => key in fields);
 
-  if (!sets.length) return res.status(400).json({ error: 'No fields to update' });
+  if (!sets.length && !recompute) return res.status(400).json({ error: 'No fields to update' });
 
-  values.push(req.params.itemId);
+  const client = await pool.connect();
   try {
-    const result = await pool.query(
+    await client.query('BEGIN');
+
+    const current = (await client.query('SELECT * FROM order_items WHERE id = $1', [req.params.itemId])).rows[0];
+    if (!current) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'Not found' });
+    }
+
+    const merged = { ...current, ...fields };
+    if (recompute) {
+      const costs = await computeItemCosts(merged);
+      sets.push(`cost_beans = $${i++}`); values.push(costs.cost_beans);
+      sets.push(`cost_bags = $${i++}`);  values.push(costs.cost_bags);
+      sets.push(`profit = $${i++}`);     values.push(costs.profit);
+    }
+
+    // Keep green_beans.lbs_remaining in sync with the roast/blend/qty this item actually
+    // represents: restore lbs for whatever it used to consume, then re-consume for its
+    // new state. Covers mark-roasted, un-roasting, and editing an already-roasted item.
+    const wasRoasted = current.status === 'roasted';
+    const willBeRoasted = 'status' in fields ? fields.status === 'roasted' : wasRoasted;
+
+    if (wasRoasted && (recompute || (!willBeRoasted && 'status' in fields))) {
+      const oldLbs = await computeComponentLbs(current, client);
+      await applyInventoryDelta(oldLbs, 1, client);
+    }
+    if (willBeRoasted && (recompute || (!wasRoasted && 'status' in fields))) {
+      const newLbs = await computeComponentLbs(merged, client);
+      await applyInventoryDelta(newLbs, -1, client);
+    }
+
+    values.push(req.params.itemId);
+    const result = await client.query(
       `UPDATE order_items SET ${sets.join(', ')} WHERE id = $${i} RETURNING *`,
       values
     );
-    if (!result.rows.length) return res.status(404).json({ error: 'Not found' });
 
     let updatedItem = result.rows[0];
-    if (recomputeTriggers.some((key) => key in fields)) {
-      await reallocateDiscount(updatedItem.order_id);
-      const refreshed = await pool.query('SELECT * FROM order_items WHERE id = $1', [updatedItem.id]);
+    if (recompute) {
+      await reallocateDiscount(updatedItem.order_id, client);
+      const refreshed = await client.query('SELECT * FROM order_items WHERE id = $1', [updatedItem.id]);
       updatedItem = refreshed.rows[0];
     }
+
+    await client.query('COMMIT');
     res.json(updatedItem);
 
     // Fire SMS if this mark-roasted completed the whole order (non-blocking)
@@ -356,17 +428,34 @@ router.patch('/items/:itemId', async (req, res) => {
       );
     }
   } catch (err) {
+    await client.query('ROLLBACK');
     res.status(500).json({ error: err.message });
+  } finally {
+    client.release();
   }
 });
 
 router.delete('/items/:itemId', async (req, res) => {
+  const client = await pool.connect();
   try {
-    const result = await pool.query('DELETE FROM order_items WHERE id = $1 RETURNING order_id', [req.params.itemId]);
-    if (result.rows.length) await reallocateDiscount(result.rows[0].order_id);
+    await client.query('BEGIN');
+
+    const item = (await client.query('SELECT * FROM order_items WHERE id = $1', [req.params.itemId])).rows[0];
+    if (item?.status === 'roasted') {
+      const lbs = await computeComponentLbs(item, client);
+      await applyInventoryDelta(lbs, 1, client);
+    }
+
+    await client.query('DELETE FROM order_items WHERE id = $1', [req.params.itemId]);
+    if (item) await reallocateDiscount(item.order_id, client);
+
+    await client.query('COMMIT');
     res.json({ ok: true });
   } catch (err) {
+    await client.query('ROLLBACK');
     res.status(500).json({ error: err.message });
+  } finally {
+    client.release();
   }
 });
 
