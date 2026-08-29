@@ -104,9 +104,10 @@ function Roasting() {
   const blendNames = Object.keys(byBlend).sort()
 
   const notWeighedItems = (items ?? []).filter((i) => !i.weighed)
+  const notWeighedTotalWeight = notWeighedItems.reduce((sum, i) => sum + Number(i.weight || 0), 0)
   const notWeighedByBlend = {}
   for (const item of notWeighedItems) {
-    notWeighedByBlend[item.blend_name] = (notWeighedByBlend[item.blend_name] ?? 0) + 1
+    notWeighedByBlend[item.blend_name] = (notWeighedByBlend[item.blend_name] ?? 0) + Number(item.weight || 0)
   }
 
   return (
@@ -150,17 +151,17 @@ function Roasting() {
         <div className="rounded-lg border border-stone-600 bg-stone-500 px-3 py-2 shadow-sm">
           <p className="text-[10px] text-stone-300">Total Not Weighed</p>
           <p className="font-serif text-lg font-bold text-red-400">
-            {notWeighedItems.length}
+            {lbs(notWeighedTotalWeight)}<span className="ml-1 text-[10px] font-normal text-stone-300">lbs</span>
           </p>
         </div>
         {blendNames.map((name) => {
-          const c = notWeighedByBlend[name] ?? 0
-          if (c === 0) return null
+          const w = notWeighedByBlend[name] ?? 0
+          if (w === 0) return null
           return (
             <div key={name} className="rounded-lg border border-stone-600 bg-stone-500 px-3 py-2 shadow-sm">
               <p className="text-[10px] text-stone-300">{name}</p>
               <p className="font-serif text-base font-semibold text-amber-300">
-                {c}
+                {lbs(w)}<span className="ml-1 text-[10px] font-normal text-stone-300">lbs</span>
               </p>
             </div>
           )
