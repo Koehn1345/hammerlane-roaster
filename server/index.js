@@ -14,6 +14,8 @@ const customersRouter = require('./routes/customers');
 const blendsRouter = require('./routes/blends');
 const greenBeansRouter = require('./routes/greenBeans');
 const bagsRouter = require('./routes/bags');
+const squareRouter = require('./routes/square');
+const { ensureSchema: ensureSquareSchema, startSquareSync } = require('./square/sync');
 
 app.use('/api/dashboard', dashboardRouter);
 app.use('/api/orders', ordersRouter);
@@ -21,6 +23,7 @@ app.use('/api/customers', customersRouter);
 app.use('/api/blends', blendsRouter);
 app.use('/api/green-beans', greenBeansRouter);
 app.use('/api/bags', bagsRouter);
+app.use('/api/square', squareRouter);
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 
@@ -35,3 +38,8 @@ if (fs.existsSync(clientDist)) {
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+// Square inbox: create its tables if needed, then poll Square every 10 minutes.
+ensureSquareSchema()
+  .then(() => startSquareSync(10))
+  .catch((err) => console.error('Square inbox setup failed:', err.message));

@@ -14,6 +14,7 @@ import BlendDetail from './pages/BlendDetail'
 import GreenBeanInventory from './pages/GreenBeanInventory'
 import GreenBeanDetail from './pages/GreenBeanDetail'
 import BagInventory from './pages/BagInventory'
+import SquareInbox from './pages/SquareInbox'
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
         <Route path="green-beans" element={<GreenBeanInventory />} />
         <Route path="green-beans/:id" element={<GreenBeanDetail />} />
         <Route path="bags" element={<BagInventory />} />
+        <Route path="square" element={<SquareInbox />} />
       </Route>
     </Routes>
   )

@@ -193,8 +193,38 @@ router.get('/roasting-list', async (req, res) => {
 
 // Create an order with one or more line items
 // body: { customer_id, notes, discount, discount_type, items: [{ blend_id, bag_size_oz, grind_type, quantity, sale_price_per_bag }] }
+// Inserts an order and its line items using an open transaction on dbClient.
+// Shared by POST /orders and the Square inbox "Add to app" action.
+async function createOrderTx(dbClient, body) {
+  const { customer_id, notes, items } = body;
+  const validBilling = ['not_billed', 'billed', 'paid'];
+  const billing = validBilling.includes(body.billing_status) ? body.billing_status : 'not_billed';
+  const discount = Number(body.discount) || 0;
+  const discountType = body.discount_type === 'percent' ? 'percent' : 'flat';
+
+  const orderResult = await dbClient.query(
+    `INSERT INTO orders (customer_id, notes, billing_status, discount, discount_type) VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+    [customer_id, notes || null, billing, discount, discountType]
+  );
+  const order = orderResult.rows[0];
+
+  for (const item of items) {
+    const costs = await computeItemCosts(item);
+    await dbClient.query(
+      `INSERT INTO order_items
+         (order_id, blend_id, bag_size_oz, grind_type, quantity, sale_price_per_bag, cost_beans, cost_bags, profit)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
+      [order.id, item.blend_id, item.bag_size_oz, item.grind_type || 'whole', item.quantity,
+       item.sale_price_per_bag, costs.cost_beans, costs.cost_bags, costs.profit]
+    );
+  }
+
+  if (discount > 0) await reallocateDiscount(order.id, dbClient);
+  return order;
+}
+
 router.post('/', async (req, res) => {
-  const { customer_id, notes, items } = req.body;
+  const { items } = req.body;
   if (!Array.isArray(items) || !items.length) {
     return res.status(400).json({ error: 'Order must have at least one item' });
   }
@@ -202,31 +232,7 @@ router.post('/', async (req, res) => {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
-
-    const validBilling = ['not_billed', 'billed', 'paid'];
-    const billing = validBilling.includes(req.body.billing_status) ? req.body.billing_status : 'not_billed';
-    const discount = Number(req.body.discount) || 0;
-    const discountType = req.body.discount_type === 'percent' ? 'percent' : 'flat';
-
-    const orderResult = await client.query(
-      `INSERT INTO orders (customer_id, notes, billing_status, discount, discount_type) VALUES ($1, $2, $3, $4, $5) RETURNING *`,
-      [customer_id, notes || null, billing, discount, discountType]
-    );
-    const order = orderResult.rows[0];
-
-    for (const item of items) {
-      const costs = await computeItemCosts(item);
-      await client.query(
-        `INSERT INTO order_items
-           (order_id, blend_id, bag_size_oz, grind_type, quantity, sale_price_per_bag, cost_beans, cost_bags, profit)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
-        [order.id, item.blend_id, item.bag_size_oz, item.grind_type || 'whole', item.quantity,
-         item.sale_price_per_bag, costs.cost_beans, costs.cost_bags, costs.profit]
-      );
-    }
-
-    if (discount > 0) await reallocateDiscount(order.id, client);
-
+    const order = await createOrderTx(client, req.body);
     await client.query('COMMIT');
     const [withItems] = await attachItems([order]);
     res.json(withItems);
@@ -460,3 +466,4 @@ router.delete('/items/:itemId', async (req, res) => {
 });
 
 module.exports = router;
+module.exports.createOrderTx = createOrderTx;
