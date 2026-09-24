@@ -27,6 +27,9 @@ router.get('/status', async (req, res) => {
     const { rows } = await pool.query(`SELECT COUNT(*)::int AS n FROM square_inbox WHERE status = 'new'`);
     res.json({
       configured: square.isConfigured(),
+      // Length only, never the token itself — lets the UI tell "no token" apart
+      // from "token present but Square rejected it" when troubleshooting Railway vars.
+      token_length: (process.env.SQUARE_ACCESS_TOKEN || '').length,
       last_sync_at: square.state.lastSyncAt,
       last_error: square.state.lastError,
       new_count: rows[0].n,

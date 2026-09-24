@@ -238,6 +238,11 @@ function SquareInbox() {
       {status && !status.configured && (
         <div className="mb-4 rounded-xl border border-yellow-300 bg-yellow-50 p-4 text-sm text-yellow-900">
           Square isn't connected yet. Add a <code>SQUARE_ACCESS_TOKEN</code> variable to the app's Railway service.
+          <p className="mt-1 text-xs text-yellow-700">
+            This server process currently sees a token of length {status.token_length}. If you've already added
+            the variable in Railway, this being 0 means the running deployment hasn't picked it up yet — check
+            that it's on the right environment and redeploy.
+          </p>
         </div>
       )}
       {status?.last_error && (
