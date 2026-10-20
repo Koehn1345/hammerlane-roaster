@@ -347,6 +347,7 @@ router.post('/:id/items', async (req, res) => {
 
 // Update a single line item — partial update.
 // Auto-stamps roast_date = today when status advances to 'roasted'.
+// Pass skip_sms: true to mark roasted without texting the customer.
 // Recomputes cost/profit if blend, bag size, quantity, or price changes.
 router.patch('/items/:itemId', async (req, res) => {
   const fields = req.body;
@@ -428,7 +429,7 @@ router.patch('/items/:itemId', async (req, res) => {
     res.json(updatedItem);
 
     // Fire SMS if this mark-roasted completed the whole order (non-blocking)
-    if (fields.status === 'roasted') {
+    if (fields.status === 'roasted' && !fields.skip_sms) {
       sendOrderSms(updatedItem.order_id).catch((err) =>
         console.error(`SMS failed for order ${updatedItem.order_id}:`, err.message)
       );

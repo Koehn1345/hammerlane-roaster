@@ -98,6 +98,14 @@ function OrdersTable({ orders, refetch }) {
     refetch()
   }
 
+  const markSelectedRoastedNoText = async () => {
+    const ids = [...selected]
+    const local_date = new Date().toLocaleDateString('en-CA')
+    await Promise.all(ids.map((id) => api.patch(`/orders/items/${id}`, { status: 'roasted', local_date, skip_sms: true })))
+    setSelected(new Set())
+    refetch()
+  }
+
   return (
     <div>
       {selected.size > 0 && (
@@ -108,6 +116,12 @@ function OrdersTable({ orders, refetch }) {
             className="rounded-lg bg-amber-800 px-3 py-1.5 text-xs font-semibold text-amber-50 shadow-sm transition-colors hover:bg-amber-900"
           >
             ✓ Mark Processed
+          </button>
+          <button
+            onClick={markSelectedRoastedNoText}
+            className="rounded-lg border border-green-600 px-3 py-1.5 text-xs font-semibold text-green-200 transition-colors hover:bg-green-800 hover:text-white"
+          >
+            ✓ Roasted (No Text)
           </button>
           <button onClick={() => setSelected(new Set())} className="text-xs font-medium text-stone-300 hover:text-white">
             Clear

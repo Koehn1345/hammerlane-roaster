@@ -178,6 +178,12 @@ function Roasting() {
             ✓ Mark Roasted
           </button>
           <button
+            onClick={() => bulkPatch({ status: 'roasted', local_date: localToday(), skip_sms: true })}
+            className="rounded-lg border border-green-600 px-3 py-1.5 text-xs font-semibold text-green-200 transition-colors hover:bg-green-800 hover:text-white"
+          >
+            ✓ Roasted (No Text)
+          </button>
+          <button
             onClick={() => bulkPatch({ weighed: true })}
             className="rounded-lg bg-amber-800 px-3 py-1.5 text-xs font-semibold text-amber-50 shadow-sm transition-colors hover:bg-amber-900"
           >

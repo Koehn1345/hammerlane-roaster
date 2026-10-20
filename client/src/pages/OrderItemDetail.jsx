@@ -79,8 +79,8 @@ function OrderItemDetail() {
 
   const localToday = () => new Date().toLocaleDateString('en-CA')
 
-  const markRoasted = async () => {
-    await patchItem({ status: 'roasted', local_date: localToday() })
+  const markRoasted = async ({ skipSms = false } = {}) => {
+    await patchItem({ status: 'roasted', local_date: localToday(), ...(skipSms && { skip_sms: true }) })
   }
 
   const deleteItem = async () => {
@@ -242,13 +242,22 @@ function OrderItemDetail() {
           Edit Order
         </button>
         {item.status !== 'roasted' ? (
-          <button
-            onClick={markRoasted}
-            disabled={patching}
-            className="flex-1 rounded-xl bg-green-700 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-green-800 disabled:opacity-50"
-          >
-            {patching ? 'Saving…' : '✓ Mark Roasted'}
-          </button>
+          <>
+            <button
+              onClick={() => markRoasted()}
+              disabled={patching}
+              className="flex-1 rounded-xl bg-green-700 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-green-800 disabled:opacity-50"
+            >
+              {patching ? 'Saving…' : '✓ Mark Roasted'}
+            </button>
+            <button
+              onClick={() => markRoasted({ skipSms: true })}
+              disabled={patching}
+              className="flex-1 rounded-xl border-2 border-green-700 bg-white py-3 text-sm font-semibold text-green-700 transition-colors hover:bg-green-50 disabled:opacity-50"
+            >
+              ✓ Roasted (No Text)
+            </button>
+          </>
         ) : (
           <div className="flex flex-1 items-center justify-center rounded-xl bg-green-50 py-3 text-sm font-medium text-green-700">
             ✓ Roasted {formatDate(item.roast_date)}
