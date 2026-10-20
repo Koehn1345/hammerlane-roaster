@@ -17,6 +17,14 @@ function Customers() {
   const navigate = useNavigate()
   const { data: customers, loading, error, refetch } = useFetch('/customers')
   const [modalMode, setModalMode] = useState(null) // null | 'create' | customer object being edited
+  const [search, setSearch] = useState('')
+
+  const query = search.trim().toLowerCase()
+  const filteredCustomers = query
+    ? (customers ?? []).filter((c) =>
+        [c.name, c.phone, c.email, c.notes].some((v) => v?.toLowerCase().includes(query))
+      )
+    : customers
 
   const closeModal = () => setModalMode(null)
   const handleSaved = () => {
@@ -52,10 +60,20 @@ function Customers() {
       )}
 
       {!loading && !error && (
+        <input
+          type="search"
+          placeholder="Search customers…"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="mb-4 w-full max-w-sm rounded-lg border border-stone-300 px-3 py-2 text-sm focus:border-amber-700 focus:outline-none focus:ring-1 focus:ring-amber-700"
+        />
+      )}
+
+      {!loading && !error && (
         <DataTable
           columns={columns}
-          rows={customers}
-          emptyMessage="No customers yet."
+          rows={filteredCustomers}
+          emptyMessage={query ? 'No customers match your search.' : 'No customers yet.'}
           onRowClick={(customer) => navigate(`/customers/${customer.id}`)}
           renderActions={(customer) => (
             <button
