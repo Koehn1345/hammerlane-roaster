@@ -1,0 +1,38 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node -e ' *)",
+      "Bash(node -c routes/orders.js)",
+      "Bash(node -c client/src/components/OrderForm.jsx)",
+      "Bash(curl -sv http://localhost:3001/api/health)",
+      "Bash(kill 51039)",
+      "Bash(curl -s http://localhost:3001/api/health)",
+      "Bash(curl -s -X POST http://localhost:3001/api/orders -H 'Content-Type: application/json' -d '{\"customer_id\":6,\"notes\":\"TEST-DISCOUNT-VERIFY\",\"discount\":5,\"items\":[{\"blend_id\":16,\"bag_size_oz\":8,\"grind_type\":\"whole\",\"quantity\":2,\"sale_price_per_bag\":10},{\"blend_id\":16,\"bag_size_oz\":15,\"grind_type\":\"whole\",\"quantity\":1,\"sale_price_per_bag\":20}]}')",
+      "Bash(curl -s -X POST http://localhost:3001/api/orders/631/items -H 'Content-Type: application/json' -d '{\"blend_id\":16,\"bag_size_oz\":8,\"grind_type\":\"whole\",\"quantity\":2,\"sale_price_per_bag\":10}')",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); o=[x for x in d if x['id']==631][0]; print\\(json.dumps\\(o, indent=2\\)\\)\")",
+      "Bash(curl -s -X PATCH http://localhost:3001/api/orders/items/629 -H 'Content-Type: application/json' -d '{\"sale_price_per_bag\":30}')",
+      "Bash(curl -s -X DELETE http://localhost:3001/api/orders/items/630)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); o=[x for x in d if x['id']==631][0]; print\\(json.dumps\\(o['items'], indent=2\\)\\)\")",
+      "Bash(curl -s -X DELETE http://localhost:3001/api/orders/631)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\('still exists' if any\\(x['id']==631 for x in d\\) else 'cleaned up'\\)\")",
+      "Bash(pkill -f \"node index.js\")",
+      "Bash(curl -s -X POST http://localhost:3001/api/orders -H 'Content-Type: application/json' -d '{\"customer_id\":6,\"notes\":\"TEST-PERCENT-DISCOUNT\",\"discount\":10,\"discount_type\":\"percent\",\"items\":[{\"blend_id\":16,\"bag_size_oz\":8,\"grind_type\":\"whole\",\"quantity\":2,\"sale_price_per_bag\":10},{\"blend_id\":16,\"bag_size_oz\":15,\"grind_type\":\"whole\",\"quantity\":1,\"sale_price_per_bag\":20}]}')",
+      "Bash(curl -s -X PATCH http://localhost:3001/api/orders/632 -H 'Content-Type: application/json' -d '{\"discount_type\":\"flat\",\"discount\":10}')",
+      "Bash(curl -s -X DELETE http://localhost:3001/api/orders/632)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\('still exists' if any\\(x['id']==632 for x in d\\) else 'cleaned up'\\)\")",
+      "Bash(python3 -c ' *)",
+      "Bash(node backfill_costs.js)",
+      "Bash(node backfill_costs.js --apply)",
+      "Bash(curl -s -X POST http://localhost:3001/api/orders -H 'Content-Type: application/json' -d '{\"customer_id\":6,\"notes\":\"TEST-DUPLICATE-SOURCE\",\"discount\":10,\"discount_type\":\"percent\",\"items\":[{\"blend_id\":16,\"bag_size_oz\":8,\"grind_type\":\"whole\",\"quantity\":2,\"sale_price_per_bag\":10}]}')",
+      "Bash(curl -s http://127.0.0.1:3001/api/health)",
+      "Bash(git check-ignore *)",
+      "Bash(railway whoami *)",
+      "Bash(pkill -f \"vite\")",
+      "Bash(node -e \"require.resolve\\('playwright'\\)\")",
+      "Bash(npx --no-install playwright --version)",
+      "Bash(npx --no-install playwright install --dry-run chromium)",
+      "Bash(NODE_PATH=\"/Users/jasonkoehn/.npm/_npx/e41f203b7505f1fb/node_modules\" node /private/tmp/claude-501/-Users-jasonkoehn-dev-hammerlane-roaster/07205742-e0c7-472d-8566-2d68e7412e87/scratchpad/shot.js)",
+      "Bash(sed -i '' 's/5180/5173/g' /private/tmp/claude-501/-Users-jasonkoehn-dev-hammerlane-roaster/07205742-e0c7-472d-8566-2d68e7412e87/scratchpad/shot.js)"
+    ]
+  }
+}
