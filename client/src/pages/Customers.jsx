@@ -65,7 +65,7 @@ function Customers() {
           placeholder="Search customers…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="mb-4 w-full max-w-sm rounded-lg border border-stone-300 px-3 py-2 text-sm focus:border-amber-700 focus:outline-none focus:ring-1 focus:ring-amber-700"
+          className="mb-4 w-full max-w-sm rounded-lg border border-stone-300 px-3 py-2 text-sm text-white focus:border-amber-700 focus:outline-none focus:ring-1 focus:ring-amber-700"
         />
       )}
 
