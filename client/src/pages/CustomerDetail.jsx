@@ -1,4 +1,7 @@
+import { useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
+import Modal from '../components/Modal'
+import OrderForm from '../components/OrderForm'
 import DataTable from '../components/DataTable'
 import { useFetch } from '../hooks/useFetch'
 import { formatDate } from '../utils/format'
@@ -40,7 +43,8 @@ function CustomerDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { data: customer, loading: custLoading, error: custError } = useFetch(`/customers/${id}`)
-  const { data: orders, loading: ordLoading, error: ordError } = useFetch(`/customers/${id}/orders`)
+  const [showForm, setShowForm] = useState(false)
+  const { data: orders, loading: ordLoading, error: ordError, refetch } = useFetch(`/customers/${id}/orders`)
 
   if (custLoading) return <p className="text-sm text-stone-400">Loading…</p>
   if (custError) return (
@@ -68,7 +72,15 @@ function CustomerDetail() {
 
       {/* Customer info card */}
       <div className="mt-4 rounded-xl border border-stone-600 bg-stone-500 p-6 shadow-sm">
-        <h1 className="font-serif text-2xl font-semibold text-white">{customer?.name}</h1>
+        <div className="flex items-start justify-between gap-4">
+          <h1 className="font-serif text-2xl font-semibold text-white">{customer?.name}</h1>
+          <button
+            onClick={() => setShowForm(true)}
+            className="rounded-lg bg-amber-800 px-4 py-2 text-sm font-medium text-amber-50 shadow-sm transition-colors hover:bg-amber-900"
+          >
+            + Add Order
+          </button>
+        </div>
         <div className="mt-3 flex flex-wrap gap-6 text-sm text-stone-100">
           {customer?.phone && (
             <span>
@@ -123,6 +135,16 @@ function CustomerDetail() {
             onRowClick={(item) => navigate(`/orders/items/${item.id}`)}
           />
         </>
+      )}
+      {showForm && (
+        <Modal title={`New Order — ${customer?.name ?? ''}`} onClose={() => setShowForm(false)}>
+          <OrderForm
+            order={null}
+            defaultCustomerId={Number(id)}
+            onSaved={() => { setShowForm(false); refetch() }}
+            onCancel={() => setShowForm(false)}
+          />
+        </Modal>
       )}
     </div>
   )

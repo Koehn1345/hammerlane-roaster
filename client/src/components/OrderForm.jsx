@@ -76,12 +76,12 @@ function ItemRow({ item, index, bags, blends, onChange, onRemove, removable }) {
   )
 }
 
-function OrderForm({ order, onSaved, onCancel }) {
+function OrderForm({ order, defaultCustomerId, onSaved, onCancel }) {
   const { data: customers } = useFetch('/customers')
   const { data: blends }    = useFetch('/blends')
   const { data: bags }      = useFetch('/bags')
 
-  const [customerId, setCustomerId] = useState(order?.customer_id || '')
+  const [customerId, setCustomerId] = useState(order?.customer_id || defaultCustomerId || '')
   const [billingStatus, setBillingStatus] = useState(order?.billing_status || 'not_billed')
   const [notes, setNotes] = useState(order?.notes || '')
   const [discount, setDiscount] = useState(order?.discount || '')
@@ -97,6 +97,7 @@ function OrderForm({ order, onSaved, onCancel }) {
         }))
       : [{ ...emptyItem }]
   )
+  const [roastStatus, setRoastStatus] = useState('not_roasted')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState(null)
 
@@ -130,6 +131,12 @@ function OrderForm({ order, onSaved, onCancel }) {
         onSaved(res.data)
       } else {
         const res = await api.post('/orders', payload)
+        if (roastStatus !== 'not_roasted') {
+          const local_date = new Date().toLocaleDateString('en-CA')
+          await Promise.all((res.data.items || []).map((it) =>
+            api.patch(`/orders/items/${it.id}`, { status: 'roasted', local_date, skip_sms: roastStatus === 'roasted_no_text' })
+          ))
+        }
         onSaved(res.data)
       }
     } catch (err) {
@@ -233,6 +240,32 @@ function OrderForm({ order, onSaved, onCancel }) {
           ))}
         </div>
       </div>
+
+      {!order && (
+        <div>
+          <label className="block text-sm font-medium text-stone-700">Roast Status</label>
+          <div className="mt-2 flex gap-2">
+            {[
+              { value: 'not_roasted',     label: 'Not Roasted' },
+              { value: 'roasted',         label: 'Roasted' },
+              { value: 'roasted_no_text', label: 'Roasted (No Text)' },
+            ].map(({ value, label }) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => setRoastStatus(value)}
+                className={`flex-1 rounded-lg border py-2 text-sm font-medium transition-colors ${
+                  roastStatus === value
+                    ? 'border-transparent bg-amber-800 text-amber-50 shadow-sm'
+                    : 'border-stone-300 bg-white text-stone-600 hover:border-stone-400'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {error && <p className="text-sm text-red-700">{error}</p>}
 
