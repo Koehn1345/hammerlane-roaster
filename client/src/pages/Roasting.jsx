@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { grindLabel } from '../utils/format'
+import { grindLabel, pacificToday } from '../utils/format'
 import { useNavigate } from 'react-router-dom'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
@@ -8,7 +8,7 @@ import { useFetch } from '../hooks/useFetch'
 import api from '../api/client'
 
 // Returns today's date in YYYY-MM-DD local time (not UTC)
-const localToday = () => new Date().toLocaleDateString('en-CA')
+const localToday = () => pacificToday()
 
 const money = (v) => `$${Number(v || 0).toFixed(2)}`
 const lbs = (v) => Number(v || 0).toFixed(2)
@@ -84,7 +84,7 @@ function Roasting() {
         grindLabel(item.grind_type),
       ]),
     })
-    doc.save(`processed-orders-${new Date().toISOString().slice(0, 10)}.pdf`)
+    doc.save(`processed-orders-${pacificToday()}.pdf`)
   }
 
   if (loading && !items) return <p className="text-sm text-stone-400">Loading roast list…</p>

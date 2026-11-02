@@ -4,7 +4,7 @@ import Modal from '../components/Modal'
 import OrderForm from '../components/OrderForm'
 import { useFetch } from '../hooks/useFetch'
 import api from '../api/client'
-import { formatDate, grindLabel } from '../utils/format'
+import { formatDate, grindLabel, pacificToday } from '../utils/format'
 
 const money = (v) => (v != null ? `$${Number(v).toFixed(2)}` : '—')
 const lbs = (v) => Number(v || 0).toFixed(2)
@@ -58,7 +58,7 @@ function RoastingItemDetail() {
     setPatching(false)
   }
 
-  const localToday = () => new Date().toLocaleDateString('en-CA')
+  const localToday = () => pacificToday()
 
   const markRoasted = async ({ skipSms = false } = {}) => {
     await patch({ status: 'roasted', local_date: localToday(), ...(skipSms && { skip_sms: true }) })

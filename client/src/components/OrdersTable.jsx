@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../api/client'
-import { formatDate, grindLabel } from '../utils/format'
+import { formatDate, grindLabel, pacificToday } from '../utils/format'
 
 const BILLING_STATUSES = ['not_billed', 'billed', 'paid']
 
@@ -100,7 +100,7 @@ function OrdersTable({ orders, refetch }) {
 
   const markSelectedRoastedNoText = async () => {
     const ids = [...selected]
-    const local_date = new Date().toLocaleDateString('en-CA')
+    const local_date = pacificToday()
     await Promise.all(ids.map((id) => api.patch(`/orders/items/${id}`, { status: 'roasted', local_date, skip_sms: true })))
     setSelected(new Set())
     refetch()

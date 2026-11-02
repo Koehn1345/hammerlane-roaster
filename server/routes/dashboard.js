@@ -8,17 +8,17 @@ router.get('/', async (req, res) => {
     // "Week" is the current Sun–Sat calendar week (matching the History page), not a rolling 7 days.
     const statsResult = await pool.query(`
       SELECT
-        COALESCE(SUM(CASE WHEN oi.roast_date >= CURRENT_DATE - EXTRACT(DOW FROM CURRENT_DATE)::int
+        COALESCE(SUM(CASE WHEN oi.roast_date >= (NOW() AT TIME ZONE 'America/Los_Angeles')::date - EXTRACT(DOW FROM (NOW() AT TIME ZONE 'America/Los_Angeles')::date)::int
           THEN bi.size_lbs * oi.quantity END), 0)             AS week_lbs,
-        COALESCE(SUM(CASE WHEN oi.roast_date >= date_trunc('month', CURRENT_DATE)
+        COALESCE(SUM(CASE WHEN oi.roast_date >= date_trunc('month', (NOW() AT TIME ZONE 'America/Los_Angeles')::date)
           THEN bi.size_lbs * oi.quantity END), 0)             AS month_lbs,
-        COALESCE(SUM(CASE WHEN oi.roast_date >= date_trunc('year', CURRENT_DATE)
+        COALESCE(SUM(CASE WHEN oi.roast_date >= date_trunc('year', (NOW() AT TIME ZONE 'America/Los_Angeles')::date)
           THEN bi.size_lbs * oi.quantity END), 0)             AS year_lbs,
-        COALESCE(SUM(CASE WHEN oi.roast_date >= CURRENT_DATE - EXTRACT(DOW FROM CURRENT_DATE)::int
+        COALESCE(SUM(CASE WHEN oi.roast_date >= (NOW() AT TIME ZONE 'America/Los_Angeles')::date - EXTRACT(DOW FROM (NOW() AT TIME ZONE 'America/Los_Angeles')::date)::int
           THEN oi.profit END), 0)                             AS week_profit,
-        COALESCE(SUM(CASE WHEN oi.roast_date >= date_trunc('month', CURRENT_DATE)
+        COALESCE(SUM(CASE WHEN oi.roast_date >= date_trunc('month', (NOW() AT TIME ZONE 'America/Los_Angeles')::date)
           THEN oi.profit END), 0)                             AS month_profit,
-        COALESCE(SUM(CASE WHEN oi.roast_date >= date_trunc('year', CURRENT_DATE)
+        COALESCE(SUM(CASE WHEN oi.roast_date >= date_trunc('year', (NOW() AT TIME ZONE 'America/Los_Angeles')::date)
           THEN oi.profit END), 0)                             AS year_profit
       FROM order_items oi
       LEFT JOIN bag_inventory bi ON bi.size_oz = oi.bag_size_oz

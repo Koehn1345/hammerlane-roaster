@@ -3,7 +3,7 @@ import api from '../api/client'
 import { useFetch } from '../hooks/useFetch'
 import { nullifyEmpty } from '../utils/nullifyEmpty'
 import SearchableSelect from './SearchableSelect'
-import { GRIND_OPTIONS } from '../utils/format'
+import { GRIND_OPTIONS, pacificToday } from '../utils/format'
 
 const emptyItem = { blend_id: '', bag_size_oz: '', grind_type: 'whole', quantity: 1, sale_price_per_bag: '' }
 
@@ -98,6 +98,7 @@ function OrderForm({ order, defaultCustomerId, onSaved, onCancel }) {
       : [{ ...emptyItem }]
   )
   const [roastStatus, setRoastStatus] = useState('not_roasted')
+  const [roastDate, setRoastDate] = useState(pacificToday())
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState(null)
 
@@ -132,7 +133,7 @@ function OrderForm({ order, defaultCustomerId, onSaved, onCancel }) {
       } else {
         const res = await api.post('/orders', payload)
         if (roastStatus !== 'not_roasted') {
-          const local_date = new Date().toLocaleDateString('en-CA')
+          const local_date = roastDate || pacificToday()
           await Promise.all((res.data.items || []).map((it) =>
             api.patch(`/orders/items/${it.id}`, { status: 'roasted', local_date, skip_sms: roastStatus === 'roasted_no_text' })
           ))
@@ -264,6 +265,12 @@ function OrderForm({ order, defaultCustomerId, onSaved, onCancel }) {
               </button>
             ))}
           </div>
+          {roastStatus !== 'not_roasted' && (
+            <div className="mt-2">
+              <label className="block text-xs font-medium text-stone-500">Roast Date</label>
+              <input type="date" required value={roastDate} onChange={(e) => setRoastDate(e.target.value)} className={inputCls} />
+            </div>
+          )}
         </div>
       )}
 
