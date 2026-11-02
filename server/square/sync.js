@@ -128,7 +128,7 @@ function mapLineItem(li, blends, bags) {
   // Strip size / grind words, then pick the longest blend name contained in what's left.
   const cleaned = name
     .replace(/1\s*\/\s*2\s*#|\d+(?:\.\d+)?\s*#/g, ' ')
-    .replace(/whole\s*bean|ground/gi, ' ')
+    .replace(/whole\s*bean|espresso(\s*grind)?|drip(\s*grind)?|ground/gi, ' ')
     .toLowerCase();
   const blend = blends
     .filter((b) => cleaned.includes(b.name.trim().toLowerCase()))
@@ -146,7 +146,7 @@ function mapLineItem(li, blends, bags) {
     ).toFixed(2),
     blend_id: blend?.id ?? null,
     bag_size_oz: bag?.size_oz ?? null,
-    grind_type: /ground/i.test(both) ? 'ground' : 'whole',
+    grind_type: /espresso/i.test(both) ? 'espresso' : /drip|ground/i.test(both) ? 'drip' : 'whole',
   };
 }
 

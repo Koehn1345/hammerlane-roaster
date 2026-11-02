@@ -55,7 +55,7 @@ async function sendOrderSms(orderId) {
     const size  = lbs === 0.5 ? '1/2 lb'
                 : Number.isInteger(lbs) ? `${lbs} lb`
                 : (item.size_label?.trim() || `${lbs} lb`);
-    const grind = item.grind_type === 'ground' ? 'Ground' : 'Whole Bean';
+    const grind = { drip: 'Drip Grind', ground: 'Drip Grind', espresso: 'Espresso Grind' }[item.grind_type] || 'Whole Bean';
     return `* ${item.blend_name} (${size}, ${grind})`;
   }).join('\n');
 

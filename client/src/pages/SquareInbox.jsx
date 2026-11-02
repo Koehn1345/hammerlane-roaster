@@ -3,6 +3,7 @@ import PageHeader from '../components/PageHeader'
 import SearchableSelect from '../components/SearchableSelect'
 import { useFetch } from '../hooks/useFetch'
 import api from '../api/client'
+import { GRIND_OPTIONS } from '../utils/format'
 
 const money = (v) => `$${Number(v || 0).toFixed(2)}`
 
@@ -146,8 +147,7 @@ function InboxCard({ row, customers, blends, bags, onDone }) {
                 <div>
                   <label className="block text-xs text-stone-200">Grind</label>
                   <select value={it.grind_type} onChange={(e) => setItem(idx, 'grind_type', e.target.value)} className={inputCls}>
-                    <option value="whole">Whole Bean</option>
-                    <option value="ground">Ground</option>
+                    {GRIND_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
                   </select>
                 </div>
                 <div>

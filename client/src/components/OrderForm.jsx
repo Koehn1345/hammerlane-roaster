@@ -3,6 +3,7 @@ import api from '../api/client'
 import { useFetch } from '../hooks/useFetch'
 import { nullifyEmpty } from '../utils/nullifyEmpty'
 import SearchableSelect from './SearchableSelect'
+import { GRIND_OPTIONS } from '../utils/format'
 
 const emptyItem = { blend_id: '', bag_size_oz: '', grind_type: 'whole', quantity: 1, sale_price_per_bag: '' }
 
@@ -11,7 +12,7 @@ const inputCls = 'mt-1 w-full rounded-lg border border-stone-300 px-3 py-2 text-
 function priceFor(bags, bag_size_oz, grind_type) {
   const bag = bags?.find((b) => String(b.size_oz) === String(bag_size_oz))
   if (!bag) return ''
-  const price = grind_type === 'ground' ? bag.price_ground : bag.price_whole
+  const price = grind_type === 'whole' ? bag.price_whole : bag.price_ground
   return price ?? ''
 }
 
@@ -49,8 +50,7 @@ function ItemRow({ item, index, bags, blends, onChange, onRemove, removable }) {
         <div>
           <label className="block text-xs font-medium text-stone-500">Grind</label>
           <select value={item.grind_type} onChange={set('grind_type')} className={inputCls}>
-            <option value="whole">Whole Bean</option>
-            <option value="ground">Ground</option>
+            {GRIND_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
           </select>
         </div>
         <div>

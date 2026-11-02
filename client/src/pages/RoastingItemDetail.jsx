@@ -4,7 +4,7 @@ import Modal from '../components/Modal'
 import OrderForm from '../components/OrderForm'
 import { useFetch } from '../hooks/useFetch'
 import api from '../api/client'
-import { formatDate } from '../utils/format'
+import { formatDate, grindLabel } from '../utils/format'
 
 const money = (v) => (v != null ? `$${Number(v).toFixed(2)}` : '—')
 const lbs = (v) => Number(v || 0).toFixed(2)
@@ -92,7 +92,7 @@ function RoastingItemDetail() {
           <div>
             <p className="text-xs uppercase tracking-wide text-stone-300">Grind</p>
             <p className="font-medium capitalize text-white">
-              {item.grind_type === 'ground' ? 'Ground' : 'Whole Bean'}
+              {grindLabel(item.grind_type)}
             </p>
           </div>
           <div>

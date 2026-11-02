@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import PageHeader from '../components/PageHeader'
 import { useFetch } from '../hooks/useFetch'
 import api from '../api/client'
-import { formatDate } from '../utils/format'
+import { formatDate, grindLabel } from '../utils/format'
 
 const money = (v) => `$${Number(v || 0).toFixed(2)}`
 
@@ -50,7 +50,7 @@ function CustomerGroup({ group, actionLabel, actionColor, onAction, onItemClick 
               <td className="px-4 py-2 text-stone-300 whitespace-nowrap">{formatDate(item.roast_date)}</td>
               <td className="px-4 py-2 font-medium text-stone-100 whitespace-nowrap">{item.blend_name}</td>
               <td className="px-4 py-2 text-stone-300 capitalize whitespace-nowrap">
-                {item.grind_type === 'ground' ? 'Ground' : 'Whole Bean'}
+                {grindLabel(item.grind_type)}
               </td>
               <td className="px-4 py-2 text-stone-300">{item.quantity}×</td>
               <td className="px-4 py-2 text-right font-medium text-stone-100 whitespace-nowrap">

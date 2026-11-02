@@ -1,4 +1,5 @@
 import PageHeader from '../components/PageHeader'
+import { grindLabel } from '../utils/format'
 import { useFetch } from '../hooks/useFetch'
 
 const lbs   = (v) => `${Number(v || 0).toFixed(2)}`
@@ -88,7 +89,7 @@ function History() {
                       <td className="px-4 py-2.5 font-bold text-white whitespace-nowrap">{r.customer_name}</td>
                       <td className="px-4 py-2.5 text-stone-100 whitespace-nowrap">{r.blend_name}</td>
                       <td className="px-4 py-2.5 text-stone-100 capitalize whitespace-nowrap">
-                        {r.grind_type === 'ground' ? 'Ground' : 'Whole Bean'}
+                        {grindLabel(r.grind_type)}
                       </td>
                       <td className="px-4 py-2.5 text-stone-100 whitespace-nowrap">{lbs(r.weight)} lbs</td>
                       <td className="px-4 py-2.5 text-stone-100 whitespace-nowrap">{money(r.cost)}</td>

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../api/client'
-import { formatDate } from '../utils/format'
+import { formatDate, grindLabel } from '../utils/format'
 
 const BILLING_STATUSES = ['not_billed', 'billed', 'paid']
 
@@ -180,7 +180,7 @@ function OrdersTable({ orders, refetch }) {
                 <td className="px-3 py-2.5 text-stone-100 whitespace-nowrap">{row.blend_name}</td>
                 <td className="px-3 py-2.5 text-stone-100">{row.bag_size_oz}oz</td>
                 <td className="px-3 py-2.5 capitalize text-stone-100 whitespace-nowrap">
-                  {row.grind_type === 'ground' ? 'Ground' : 'Whole Bean'}
+                  {grindLabel(row.grind_type)}
                 </td>
                 <td className="px-3 py-2.5 text-stone-100">{row.quantity}</td>
                 <td className="px-3 py-2.5 text-stone-100 whitespace-nowrap">

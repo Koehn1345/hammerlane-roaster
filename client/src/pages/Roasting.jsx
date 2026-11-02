@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { grindLabel } from '../utils/format'
 import { useNavigate } from 'react-router-dom'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
@@ -80,7 +81,7 @@ function Roasting() {
         item.blend_name,
         item.size_label?.trim() || `${item.bag_size_oz}oz`,
         item.quantity,
-        item.grind_type === 'ground' ? 'Ground' : 'Whole Bean',
+        grindLabel(item.grind_type),
       ]),
     })
     doc.save(`processed-orders-${new Date().toISOString().slice(0, 10)}.pdf`)
@@ -270,7 +271,7 @@ function Roasting() {
                       </td>
                       <td className="px-3 py-2.5 text-stone-200">{item.quantity}</td>
                       <td className="px-3 py-2.5 text-stone-200 whitespace-nowrap">
-                        {item.grind_type === 'ground' ? 'Ground' : 'Whole Bean'}
+                        {grindLabel(item.grind_type)}
                       </td>
                       <td className="px-3 py-2.5 text-center" onClick={(e) => e.stopPropagation()}>
                         <Checkbox checked={item.weighed} onChange={(e) => patch(item.id, { weighed: !item.weighed }, e)} />

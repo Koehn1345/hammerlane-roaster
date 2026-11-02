@@ -7,3 +7,15 @@ export function formatDate(value) {
     timeZone: 'UTC',
   })
 }
+
+export const GRIND_OPTIONS = [
+  { value: 'whole', label: 'Whole Bean' },
+  { value: 'drip', label: 'Drip Grind' },
+  { value: 'espresso', label: 'Espresso Grind' },
+]
+
+// Legacy 'ground' rows are treated as Drip Grind.
+export function grindLabel(type) {
+  if (type === 'ground') return 'Drip Grind'
+  return GRIND_OPTIONS.find((o) => o.value === type)?.label ?? 'Whole Bean'
+}
